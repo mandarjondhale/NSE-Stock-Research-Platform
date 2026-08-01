@@ -44,8 +44,13 @@ app = FastAPI(title="FinCopilot API", version="3.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+    ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -279,7 +284,7 @@ async def analyze_stock(req: TickerRequest):
         print(f"CACHE MISS for {ticker}. Running async analysis pipeline...")
         result = await async_full_stock_analysis(ticker)
         if "error" in result:
-            raise HTTPException(400, result["error"])
+            raise HTTPException(404, result["error"])
         
         # Save to cache
         cache_instance.set(cache_key, result)
