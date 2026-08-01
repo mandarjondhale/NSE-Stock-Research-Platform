@@ -17,6 +17,7 @@ from datetime import date, datetime, timedelta
 from supabase import create_client, Client
 from dotenv import load_dotenv
 
+from typing import Optional
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, Depends, Header
@@ -36,6 +37,7 @@ from data_fetcher import (
 from cache import cache_instance
 import asyncio
 from broker_service import BrokerService
+from token_store import TokenStore
 
 
 app = FastAPI(title="FinCopilot API", version="3.0.0")
@@ -194,6 +196,14 @@ class BrokerLoginRequest(BaseModel):
 class BrokerCallbackRequest(BaseModel):
     request_token: str
     redirect_uri: str
+
+class BrokerConnectRequest(BaseModel):
+    client_code: Optional[str] = None
+    password: Optional[str] = None
+    api_key: Optional[str] = None
+    api_secret: Optional[str] = None
+    totp_key: Optional[str] = None
+
 
 
 def get_supabase() -> Client:
@@ -721,133 +731,257 @@ def get_portfolio_history(current_user = Depends(get_current_user)):
         raise HTTPException(500, str(e))
 
 
+async def enrich_and_format_holdings(raw_holdings: list, email: str, sb) -> dict:
+    results = []
+    sector_allocations = {}
+    total_portfolio_value = 0
+    total_weighted_pe = 0
+    total_weighted_fscore = 0
+
+    if not raw_holdings:
+        return {
+            "stocks": [],
+            "analysis": {
+                "avg_pe": 0,
+                "avg_fscore": 0,
+                "sectors": {}
+            }
+        }
+
+    # Parallelize current price, fundamentals, and F-score calculations using asyncio.gather
+    tasks = []
+    for item in raw_holdings:
+        sym = item["ticker"].upper().strip()
+        query_sym = sym if ("." in sym or "-" in sym) else sym + ".NS"
+        
+        async def fetch_stock_data(s_item, q_sym):
+            current_price = 0
+            # Try 5d history to resolve current price
+            try:
+                hist = yf.Ticker(q_sym, session=yf_session).history(period="5d")
+                if not hist.empty:
+                    hist = hist.dropna(subset=["Close"])
+                    if not hist.empty:
+                        current_price = float(hist["Close"].iloc[-1])
+            except Exception:
+                pass
+                
+            fund = {}
+            pio = {}
+            try:
+                fund = get_fundamentals(q_sym)
+                pio = get_piotroski_score(q_sym)
+            except Exception:
+                pass
+                
+            return {
+                "item": s_item,
+                "current_price": current_price,
+                "fund": fund,
+                "pio": pio
+            }
+            
+        tasks.append(fetch_stock_data(item, query_sym))
+        
+    fetched_data = await asyncio.gather(*tasks)
+    
+    for entry in fetched_data:
+        item = entry["item"]
+        current_price = entry["current_price"]
+        fund = entry["fund"]
+        pio = entry["pio"]
+        
+        shares = item["shares"]
+        buy_price = item["buy_price"]
+        sym = item["ticker"]
+        
+        # If price fetch failed, fallback to average buy price to avoid zero metrics
+        if current_price == 0:
+            current_price = buy_price
+            
+        sector = fund.get("sector", item.get("sector", "Unknown"))
+        pe_ratio = fund.get("pe_ratio") if fund and fund.get("pe_ratio") else 0
+        f_score = pio.get("score") if pio and pio.get("score") else 0
+        
+        invested = shares * buy_price
+        current_value = shares * current_price
+        pnl = current_value - invested
+        pnl_pct = (pnl / invested * 100) if invested > 0 else 0
+        
+        if current_value > 0:
+            sector_allocations[sector] = sector_allocations.get(sector, 0) + current_value
+            total_portfolio_value += current_value
+            total_weighted_pe += (pe_ratio * current_value)
+            total_weighted_fscore += (f_score * current_value)
+            
+        results.append({
+            "ticker": sym,
+            "shares": shares,
+            "buy_price": buy_price,
+            "current_price": current_price,
+            "invested": invested,
+            "current_value": current_value,
+            "pnl": pnl,
+            "pnl_pct": pnl_pct,
+            "sector": sector,
+            "pe_ratio": pe_ratio,
+            "f_score": f_score
+        })
+        
+    avg_pe = (total_weighted_pe / total_portfolio_value) if total_portfolio_value > 0 else 0
+    avg_fscore = (total_weighted_fscore / total_portfolio_value) if total_portfolio_value > 0 else 0
+    
+    for s in sector_allocations:
+        sector_allocations[s] = round((sector_allocations[s] / total_portfolio_value) * 100, 1)
+        
+    # Save Daily Snapshot to Supabase/snapshots
+    try:
+        today_str = date.today().isoformat()
+        existing = sb.table("portfolio_snapshots").select("*").eq("user_email", email).eq("snapshot_date", today_str).execute()
+        
+        total_current_value = sum(r["current_value"] for r in results)
+        total_invested_val = sum(r["invested"] for r in results)
+        total_pnl_val = sum(r["pnl"] for r in results)
+        
+        if existing.data:
+            sb.table("portfolio_snapshots").update({
+                "total_value": total_current_value,
+                "total_invested": total_invested_val,
+                "total_pnl": total_pnl_val
+            }).eq("id", existing.data[0]["id"]).execute()
+        else:
+            sb.table("portfolio_snapshots").insert({
+                "user_email": email,
+                "snapshot_date": today_str,
+                "total_value": total_current_value,
+                "total_invested": total_invested_val,
+                "total_pnl": total_pnl_val
+            }).execute()
+    except Exception as e:
+        print(f"Failed to save snapshot: {e}")
+        
+    return {
+        "stocks": results,
+        "analysis": {
+            "avg_pe": round(avg_pe, 1),
+            "avg_fscore": round(avg_fscore, 1),
+            "sectors": sector_allocations
+        }
+    }
+
+
 @app.post("/api/portfolio/broker/login/{broker_name}")
 def get_broker_login_url(broker_name: str, req: BrokerLoginRequest, current_user = Depends(get_current_user)):
     try:
-        url_data = BrokerService.get_login_url(broker_name, req.redirect_uri)
+        url_data = BrokerService.get_login_url(broker_name, req.redirect_uri, api_key=req.api_key)
         return {"success": True, "data": url_data}
     except Exception as e:
         raise HTTPException(400, str(e))
 
+
 @app.post("/api/portfolio/broker/callback/{broker_name}")
 async def get_broker_holdings(broker_name: str, req: BrokerCallbackRequest, current_user = Depends(get_current_user)):
     email = current_user.email
+    sb = get_supabase()
     try:
         # Fetch raw holdings from broker service
-        raw_holdings = BrokerService.handle_callback(broker_name, req.request_token, req.redirect_uri)
+        raw_holdings = BrokerService.handle_callback(
+            broker_name=broker_name, 
+            request_token=req.request_token, 
+            redirect_uri=req.redirect_uri, 
+            user_email=email, 
+            sb_client=sb,
+            api_key=req.api_key,
+            api_secret=req.api_secret
+        )
+
         
-        results = []
-        sector_allocations = {}
-        total_portfolio_value = 0
-        total_weighted_pe = 0
-        total_weighted_fscore = 0
-
-        # Process the holdings retrieved from broker
-        for item in raw_holdings:
-            sym = item["ticker"].upper().strip()
-            shares = item["shares"]
-            buy_price = item["buy_price"]
-
-            # Fetch current price
-            query_sym = sym if "." in sym else sym + ".NS"
-            current_price = 0
-            
-            for s in ([sym] if "." in sym else [sym, sym + ".NS"]):
-                try:
-                    hist = yf.Ticker(s, session=yf_session).history(period="5d")
-                    if not hist.empty:
-                        hist = hist.dropna(subset=["Close"])
-                        if not hist.empty:
-                            current_price = float(hist["Close"].iloc[-1])
-                            query_sym = s
-                            break
-                except Exception:
-                    continue
-
-
-
-            # Fetch fundamentals & piotroski
-            fund = {}
-            pio = {}
-            try:
-                fund = get_fundamentals(query_sym)
-                pio = get_piotroski_score(query_sym)
-            except Exception:
-                pass
-
-            sector = fund.get("sector", "Unknown") if isinstance(fund, dict) else "Unknown"
-            pe_ratio = fund.get("pe_ratio") if isinstance(fund, dict) and fund.get("pe_ratio") else 0
-            f_score = pio.get("score") if isinstance(pio, dict) and pio.get("score") else 0
-
-            invested = shares * buy_price
-            current_value = shares * current_price
-            pnl = current_value - invested
-            pnl_pct = (pnl / invested * 100) if invested > 0 else 0
-
-            if current_value > 0:
-                sector_allocations[sector] = sector_allocations.get(sector, 0) + current_value
-                total_portfolio_value += current_value
-                total_weighted_pe += (pe_ratio * current_value)
-                total_weighted_fscore += (f_score * current_value)
-
-            results.append({
-                "ticker": sym,
-                "shares": shares,
-                "buy_price": buy_price,
-                "current_price": current_price,
-                "invested": invested,
-                "current_value": current_value,
-                "pnl": pnl,
-                "pnl_pct": pnl_pct,
-                "sector": sector,
-                "pe_ratio": pe_ratio,
-                "f_score": f_score
-            })
-
-        avg_pe = (total_weighted_pe / total_portfolio_value) if total_portfolio_value > 0 else 0
-        avg_fscore = (total_weighted_fscore / total_portfolio_value) if total_portfolio_value > 0 else 0
-        
-        for s in sector_allocations:
-            sector_allocations[s] = round((sector_allocations[s] / total_portfolio_value) * 100, 1)
-
-        # Save Daily Snapshot
-        try:
-            sb = get_supabase()
-            today_str = date.today().isoformat()
-            
-            existing = sb.table("portfolio_snapshots").select("*").eq("user_email", email).eq("snapshot_date", today_str).execute()
-            
-            total_current_value = sum(r["current_value"] for r in results)
-            total_invested_val = sum(r["invested"] for r in results)
-            total_pnl_val = sum(r["pnl"] for r in results)
-
-            if existing.data:
-                sb.table("portfolio_snapshots").update({
-                    "total_value": total_current_value,
-                    "total_invested": total_invested_val,
-                    "total_pnl": total_pnl_val
-                }).eq("id", existing.data[0]["id"]).execute()
-            else:
-                sb.table("portfolio_snapshots").insert({
-                    "user_email": email,
-                    "snapshot_date": today_str,
-                    "total_value": total_current_value,
-                    "total_invested": total_invested_val,
-                    "total_pnl": total_pnl_val
-                }).execute()
-        except Exception as e:
-            print(f"Failed to save snapshot: {e}")
-
-        return clean_nans({
-            "success": True, 
-            "data": {
-                "stocks": results,
-                "analysis": {
-                    "avg_pe": round(avg_pe, 1),
-                    "avg_fscore": round(avg_fscore, 1),
-                    "sectors": sector_allocations
-                }
-            }
-        })
+        data = await enrich_and_format_holdings(raw_holdings, email, sb)
+        return clean_nans({"success": True, "data": data})
     except Exception as e:
         raise HTTPException(500, f"Error linking broker: {str(e)}")
+
+
+@app.post("/api/portfolio/broker/connect/{broker_name}")
+async def connect_broker_direct(broker_name: str, req: BrokerConnectRequest, current_user = Depends(get_current_user)):
+    email = current_user.email
+    sb = get_supabase()
+    try:
+        credentials = {
+            "client_code": req.client_code,
+            "password": req.password,
+            "api_key": req.api_key,
+            "api_secret": req.api_secret,
+            "totp_key": req.totp_key
+        }
+        raw_holdings = BrokerService.connect_direct_credentials(
+            broker=broker_name,
+            user_email=email,
+            credentials=credentials,
+            sb_client=sb
+        )
+        data = await enrich_and_format_holdings(raw_holdings, email, sb)
+        return clean_nans({"success": True, "data": data})
+    except Exception as e:
+        raise HTTPException(400, f"Error connecting broker: {str(e)}")
+
+
+@app.get("/api/portfolio/holdings")
+async def get_portfolio_holdings(current_user = Depends(get_current_user)):
+    email = current_user.email
+    sb = get_supabase()
+    try:
+        # Check if user has a linked broker
+        connected_broker = None
+        for broker in ["zerodha", "upstox", "angelone", "binance", "coindcx"]:
+            conn = TokenStore.get_connection(email, broker, sb)
+            if conn:
+                connected_broker = broker
+                break
+                
+        raw_holdings = []
+        if connected_broker:
+            try:
+                # Retrieve active holdings from broker
+                raw_holdings = BrokerService.fetch_holdings(connected_broker, email, sb)
+            except Exception as ex:
+                print(f"Error fetching active holdings for {connected_broker}: {ex}. Falling back to saved holdings.")
+                # Fallback to saved holdings
+                raw_holdings = TokenStore.get_holdings(email, sb)
+        else:
+            # Check for saved holdings (CSV or previous broker connections)
+            raw_holdings = TokenStore.get_holdings(email, sb)
+            
+        data = await enrich_and_format_holdings(raw_holdings, email, sb)
+        return clean_nans({"success": True, "data": data, "broker": connected_broker})
+    except Exception as e:
+        raise HTTPException(500, f"Error fetching holdings: {str(e)}")
+
+
+@app.get("/api/portfolio/broker/status")
+def get_broker_status(current_user = Depends(get_current_user)):
+    email = current_user.email
+    sb = get_supabase()
+    try:
+        connected_broker = None
+        for broker in ["zerodha", "upstox", "angelone", "binance", "coindcx"]:
+            conn = TokenStore.get_connection(email, broker, sb)
+            if conn:
+                connected_broker = broker
+                break
+        return {"success": True, "connected": connected_broker is not None, "broker": connected_broker}
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+
+@app.post("/api/portfolio/broker/disconnect/{broker_name}")
+def disconnect_broker(broker_name: str, current_user = Depends(get_current_user)):
+    email = current_user.email
+    sb = get_supabase()
+    try:
+        TokenStore.delete_connection(email, broker_name, sb)
+        # Clear holdings as well
+        TokenStore.save_holdings(email, [], sb)
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(500, str(e))

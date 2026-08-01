@@ -8,8 +8,8 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function cr(v) {
   if (v == null) return "—";
-  if (v >= 100000) return `₹${(v/100000).toFixed(1)}L Cr`;
-  if (v >= 1000)   return `₹${(v/1000).toFixed(1)}K Cr`;
+  if (v >= 100000) return `₹${(v / 100000).toFixed(1)}L Cr`;
+  if (v >= 1000) return `₹${(v / 1000).toFixed(1)}K Cr`;
   return `₹${v.toFixed(1)} Cr`;
 }
 
@@ -96,12 +96,12 @@ function Check({ label, passed }) {
 // ── Authentication Screen ─────────────────────────────────────────────────────
 
 function LoginScreen({ onLogin }) {
-  const [mode,     setMode]     = useState("login");   // "login" | "signup"
-  const [name,     setName]     = useState("");
-  const [email,    setEmail]    = useState("");
+  const [mode, setMode] = useState("login");   // "login" | "signup"
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [verifyMsg, setVerifyMsg] = useState(""); // <-- New state for email message
 
   async function handleSubmit(e) {
@@ -115,7 +115,7 @@ function LoginScreen({ onLogin }) {
       : `${API}/api/auth/login`;
 
     try {
-      const res  = await fetch(endpoint, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -132,10 +132,10 @@ function LoginScreen({ onLogin }) {
       }
 
       // If they are logging in normally, proceed:
-      localStorage.setItem("fc_user",  JSON.stringify(json.data));
+      localStorage.setItem("fc_user", JSON.stringify(json.data));
       localStorage.setItem("fc_token", json.token || "");
       onLogin(json.data);
-      
+
     } catch (e) {
       setError(e.message);
     } finally {
@@ -154,7 +154,7 @@ function LoginScreen({ onLogin }) {
         </div>
 
         <div className="flex gap-1 bg-slate-950/60 border border-slate-800/40 rounded-xl p-1 mb-6">
-          {["login","signup"].map(m => (
+          {["login", "signup"].map(m => (
             <button key={m} type="button" onClick={() => { setMode(m); setError(""); setVerifyMsg(""); }}
               className={`flex-1 text-xs py-2 rounded-lg font-bold transition-all duration-200
                 ${mode === m ? "bg-slate-800 text-slate-100 shadow-sm" : "text-slate-500 hover:text-slate-300"}`}>
@@ -169,26 +169,26 @@ function LoginScreen({ onLogin }) {
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Full name</label>
               <input value={name} onChange={e => setName(e.target.value)}
                 placeholder="Mandar Jondhale"
-                className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all"/>
+                className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all" />
             </div>
           )}
           <div>
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Email Address</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all"/>
+              className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all" />
           </div>
           <div>
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all"/>
+              className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all" />
           </div>
-          
+
           {/* Validation Messages */}
           {error && <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl px-3 py-2.5">{error}</div>}
           {verifyMsg && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-xl px-3 py-2.5">{verifyMsg}</div>}
-          
+
           <button type="submit" disabled={loading}
             className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-teal-950/20 transition-all disabled:opacity-50 mt-2">
             {loading ? "Verifying..." : mode === "login" ? "Log in →" : "Create account →"}
@@ -197,7 +197,7 @@ function LoginScreen({ onLogin }) {
 
         <p className="text-xs text-slate-500 text-center mt-5">
           {mode === "login" ? "Need an account? " : "Have an account? "}
-          <button type="button" onClick={() => { setMode(mode==="login"?"signup":"login"); setError(""); setVerifyMsg(""); }}
+          <button type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setVerifyMsg(""); }}
             className="text-teal-400 hover:text-teal-300 hover:underline font-bold">
             {mode === "login" ? "Sign up" : "Log in"}
           </button>
@@ -212,14 +212,14 @@ function LoginScreen({ onLogin }) {
 
 function StockPriceChart({ history }) {
   const canvasRef = useRef(null);
-  
+
   useEffect(() => {
     if (!canvasRef.current || !history) return;
     const Chart = require("chart.js/auto");
-    
+
     const sortedDates = Object.keys(history).sort();
     const dataPoints = sortedDates.map(d => history[d]);
-    
+
     const chart = new Chart(canvasRef.current, {
       type: "line",
       data: {
@@ -244,13 +244,13 @@ function StockPriceChart({ history }) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { 
-            grid: { display: false }, 
-            ticks: { maxTicksLimit: 8, font: { size: 10 }, color: "#64748b" } 
+          x: {
+            grid: { display: false },
+            ticks: { maxTicksLimit: 8, font: { size: 10 }, color: "#64748b" }
           },
-          y: { 
-            grid: { color: "rgba(255, 255, 255, 0.05)" }, 
-            ticks: { font: { size: 10 }, color: "#64748b" } 
+          y: {
+            grid: { color: "rgba(255, 255, 255, 0.05)" },
+            ticks: { font: { size: 10 }, color: "#64748b" }
           }
         }
       }
@@ -270,20 +270,20 @@ function StockPriceChart({ history }) {
 
 function MFNavChart({ history }) {
   const canvasRef = useRef(null);
-  
+
   useEffect(() => {
     if (!canvasRef.current || !history) return;
     const Chart = require("chart.js/auto");
-    
+
     const sortedDates = Object.keys(history).sort((a, b) => {
       const partsA = a.split("-");
       const partsB = b.split("-");
-      const dateA = new Date(partsA[2], partsA[1]-1, partsA[0]);
-      const dateB = new Date(partsB[2], partsB[1]-1, partsB[0]);
+      const dateA = new Date(partsA[2], partsA[1] - 1, partsA[0]);
+      const dateB = new Date(partsB[2], partsB[1] - 1, partsB[0]);
       return dateA - dateB;
     });
     const dataPoints = sortedDates.map(d => history[d]);
-    
+
     const chart = new Chart(canvasRef.current, {
       type: "line",
       data: {
@@ -304,13 +304,13 @@ function MFNavChart({ history }) {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: { 
-            grid: { display: false }, 
-            ticks: { maxTicksLimit: 6, font: { size: 10 }, color: "#64748b" } 
+          x: {
+            grid: { display: false },
+            ticks: { maxTicksLimit: 6, font: { size: 10 }, color: "#64748b" }
           },
-          y: { 
-            grid: { color: "rgba(255, 255, 255, 0.05)" }, 
-            ticks: { font: { size: 10 }, color: "#64748b" } 
+          y: {
+            grid: { color: "rgba(255, 255, 255, 0.05)" },
+            ticks: { font: { size: 10 }, color: "#64748b" }
           }
         }
       }
@@ -330,20 +330,20 @@ function MFNavChart({ history }) {
 
 function PortfolioHistoryChart({ history }) {
   const canvasRef = useRef(null);
-  
+
   useEffect(() => {
     if (!canvasRef.current || !history || history.length === 0) return;
     const Chart = require("chart.js/auto");
-    
+
     const sorted = [...history].sort((a, b) => a.snapshot_date.localeCompare(b.snapshot_date));
-    
+
     const labels = sorted.map(s => {
       const dateObj = new Date(s.snapshot_date);
       return dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
     });
     const totalValues = sorted.map(s => s.total_value);
     const totalInvested = sorted.map(s => s.total_invested);
-    
+
     const chart = new Chart(canvasRef.current, {
       type: "line",
       data: {
@@ -379,13 +379,13 @@ function PortfolioHistoryChart({ history }) {
           }
         },
         scales: {
-          x: { 
-            grid: { display: false }, 
-            ticks: { font: { size: 10 }, color: "#64748b" } 
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, color: "#64748b" }
           },
-          y: { 
-            grid: { color: "rgba(255, 255, 255, 0.05)" }, 
-            ticks: { font: { size: 10 }, color: "#64748b" } 
+          y: {
+            grid: { color: "rgba(255, 255, 255, 0.05)" },
+            ticks: { font: { size: 10 }, color: "#64748b" }
           }
         }
       }
@@ -415,10 +415,11 @@ function PortfolioHistoryChart({ history }) {
 // ── Broker Connection Dialog ─────────────────────────────────────────────────
 
 function BrokerConnectModal({ broker, onClose, onSuccess }) {
-  const [step, setStep] = useState(1); // 1 = Login details, 2 = OTP verification
   const [clientId, setClientId] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [apiSecret, setApiSecret] = useState("");
+  const [totpKey, setTotpKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -426,60 +427,63 @@ function BrokerConnectModal({ broker, onClose, onSuccess }) {
     zerodha: "Zerodha (Kite)",
     angelone: "Angel One (SmartAPI)",
     groww: "Groww",
-    upstox: "Upstox"
+    upstox: "Upstox",
+    binance: "Binance API",
+    coindcx: "CoinDCX API"
   };
 
-  async function handleRequestOtp(e) {
+  async function handleConnect(e) {
     e.preventDefault();
-    if (!clientId) return setError("Please enter your Client ID or Registered Mobile.");
-    setLoading(true);
-    setError("");
-    
-    // Simulate API request to broker gateway
-    setTimeout(() => {
-      setLoading(false);
-      setStep(2);
-    }, 1200);
-  }
-
-  async function handleVerifyOtp(e) {
-    e.preventDefault();
-    if (!otp || otp.length < 4) return setError("Please enter a valid OTP.");
     setLoading(true);
     setError("");
 
     try {
       const token = localStorage.getItem("fc_token");
-      const redirectUri = window.location.origin + "/api/portfolio/broker/callback/" + broker;
-      
-      // Step A: Request the Redirect/Simulation URL from FastAPI
-      const loginUrlRes = await fetch(`${API}/api/portfolio/broker/login/${broker}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ redirect_uri: redirectUri })
-      });
-      const loginUrlJson = await loginUrlRes.json();
-      if (!loginUrlRes.ok) throw new Error(loginUrlJson.detail || "Failed to fetch login URL");
+      const redirectUri = window.location.origin + "/";
 
-      // Step B: Trigger Callback logic in backend with mock token to link account
-      const callbackRes = await fetch(`${API}/api/portfolio/broker/callback/${broker}`, {
+      if (broker === "zerodha" || broker === "upstox") {
+        localStorage.setItem("pending_broker", broker);
+        if (apiKey) localStorage.setItem("pending_broker_api_key", apiKey);
+        if (apiSecret) localStorage.setItem("pending_broker_api_secret", apiSecret);
+
+        const loginUrlRes = await fetch(`${API}/api/portfolio/broker/login/${broker}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            redirect_uri: redirectUri,
+            api_key: apiKey || undefined,
+            api_secret: apiSecret || undefined
+          })
+        });
+        const loginUrlJson = await loginUrlRes.json();
+        if (!loginUrlRes.ok) throw new Error(loginUrlJson.detail || "Failed to fetch login URL");
+
+        // Redirect to broker portal for authorization
+        window.location.href = loginUrlJson.data.url;
+        return;
+      }
+
+      const connectRes = await fetch(`${API}/api/portfolio/broker/connect/${broker}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ 
-          request_token: "mock_success_token_" + Math.random().toString(36).substring(7),
-          redirect_uri: redirectUri
+        body: JSON.stringify({
+          client_code: clientId,
+          password: password,
+          api_key: apiKey,
+          api_secret: apiSecret,
+          totp_key: totpKey
         })
       });
-      const callbackJson = await callbackRes.json();
-      if (!callbackRes.ok) throw new Error(callbackJson.detail || "Failed to link holdings");
+      const connectJson = await connectRes.json();
+      if (!connectRes.ok) throw new Error(connectJson.detail || "Connection failed");
 
-      onSuccess(callbackJson.data);
+      onSuccess(connectJson.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -491,53 +495,106 @@ function BrokerConnectModal({ broker, onClose, onSuccess }) {
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
       <div className="bg-[#0b0f19] border border-slate-800/80 rounded-2xl p-8 w-full max-w-sm shadow-2xl relative animate-in zoom-in-95 duration-200">
         <button onClick={onClose} className="absolute right-4 top-4 text-slate-500 hover:text-slate-300 font-bold text-xl">×</button>
-        
+
         <div className="text-center mb-6">
           <h3 className="text-lg font-bold text-slate-100">Connect to {brokerNames[broker]}</h3>
-          <p className="text-xs text-slate-400 mt-1">Establishing a secure connection with your broker portal</p>
+          <p className="text-xs text-slate-400 mt-1">Establishing a secure live connection with your broker</p>
         </div>
 
         {error && <div className="mb-4 text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">{error}</div>}
 
-        {step === 1 ? (
-          <form onSubmit={handleRequestOtp} className="space-y-4">
-            <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Client ID / Mobile Number</label>
-              <input value={clientId} onChange={e => setClientId(e.target.value)}
-                placeholder="e.g. AB1234 or 9876543210"
-                className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all" required />
+        {broker === "groww" ? (
+          <div className="space-y-4">
+            <p className="text-xs text-slate-450 leading-relaxed text-center">
+              Groww does not provide a public developer API for external portfolio syncing.
+            </p>
+            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800/40 text-xs text-slate-300 leading-relaxed">
+              <strong>💡 Recommended Alternative:</strong>
+              <br />
+              Export your portfolio as a standard CSV from Groww, and upload it via the <strong>Upload Holdings CSV File</strong> section on the main dashboard.
             </div>
-            <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Password / PIN</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="••••••"
-                className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 transition-all" required />
-            </div>
-            <button type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-teal-950/20 transition-all disabled:opacity-50 mt-2">
-              {loading ? "Authenticating..." : "Verify & Send OTP →"}
+            <button onClick={onClose} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-colors">
+              Close
             </button>
-          </form>
+          </div>
         ) : (
-          <form onSubmit={handleVerifyOtp} className="space-y-4">
-            <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Verification OTP</label>
-              <input value={otp} onChange={e => setOtp(e.target.value)}
-                placeholder="Enter 6-digit OTP code"
-                className="w-full text-center tracking-widest bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/40 text-slate-100 placeholder-slate-600 focus:border-teal-500/50 font-bold transition-all" maxLength={6} required />
-            </div>
-            <button type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-emerald-950/20 transition-all disabled:opacity-50 mt-2">
-              {loading ? "Syncing Holdings..." : "Confirm & Import Holdings"}
-            </button>
-            <button type="button" onClick={() => setStep(1)} className="w-full text-center text-xs text-teal-400 hover:text-teal-300 mt-2 font-bold transition-colors">← Back</button>
+          <form onSubmit={handleConnect} className="space-y-4">
+            {(broker === "zerodha" || broker === "upstox") && (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Developer API Key</label>
+                  <input value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="API Key (or leave blank if set in backend)"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Developer API Secret</label>
+                  <input type="password" value={apiSecret} onChange={e => setApiSecret(e.target.value)} placeholder="API Secret (or leave blank if set in backend)"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" />
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed text-center pt-1">
+                  You will be redirected to the secure login gateway of your broker to authorize access.
+                </p>
+                <button type="submit" disabled={loading}
+                  className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all disabled:opacity-50">
+                  {loading ? "Redirecting..." : "Login & Authorize"}
+                </button>
+              </div>
+            )}
+
+            {broker === "angelone" && (
+              <>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Client Code</label>
+                  <input value={clientId} onChange={e => setClientId(e.target.value)} placeholder="e.g. A123456"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" required />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Password</label>
+                  <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" required />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">SmartAPI Key</label>
+                  <input value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="API Key"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" required />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Google Authenticator TOTP Key</label>
+                  <input value={totpKey} onChange={e => setTotpKey(e.target.value)} placeholder="e.g. JBSWY3DPEHPK3PXP"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" required />
+                </div>
+                <button type="submit" disabled={loading}
+                  className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all disabled:opacity-50">
+                  {loading ? "Connecting..." : "Connect Account"}
+                </button>
+              </>
+            )}
+
+            {(broker === "binance" || broker === "coindcx") && (
+              <>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">API Key</label>
+                  <input value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="API Key"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" required />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">API Secret</label>
+                  <input type="password" value={apiSecret} onChange={e => setApiSecret(e.target.value)} placeholder="API Secret Key"
+                    className="w-full bg-slate-950/50 border border-slate-800/60 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-650 focus:outline-none focus:border-teal-500/50" required />
+                </div>
+                <button type="submit" disabled={loading}
+                  className="w-full bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition-all disabled:opacity-50">
+                  {loading ? "Connecting..." : "Connect Account"}
+                </button>
+              </>
+            )}
           </form>
         )}
       </div>
     </div>
-
   );
 }
+
 
 // ── Portfolio Upload & Analysis Tab ──────────────────────────────────────────
 
@@ -551,15 +608,15 @@ function PortfolioTab({ user }) {
 
   function MiniSparkline({ up }) {
     const ref = useRef(null);
-    
+
     useEffect(() => {
       if (!ref.current) return;
       const Chart = require("chart.js/auto");
-      const data = up ? [10,12,11,14,13,16,18,20] : [20,18,19,16,17,14,12,10];
+      const data = up ? [10, 12, 11, 14, 13, 16, 18, 20] : [20, 18, 19, 16, 17, 14, 12, 10];
       const chart = new Chart(ref.current, {
         type: "line",
         data: {
-          labels: data.map((_,i)=>i),
+          labels: data.map((_, i) => i),
           datasets: [{
             data,
             borderColor: up ? "#10b981" : "#ef4444",
@@ -579,6 +636,36 @@ function PortfolioTab({ user }) {
 
     return <canvas ref={ref} width={50} height={24} className="shrink-0 ml-2" />;
   }
+
+  const [brokerStatus, setBrokerStatus] = useState(null);
+
+  useEffect(() => {
+    async function fetchHoldings() {
+      const token = localStorage.getItem("fc_token");
+      if (!token) return;
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch(`${API}/api/portfolio/holdings`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const json = await res.json();
+        if (res.ok && json.success) {
+          if (json.data && json.data.stocks && json.data.stocks.length > 0) {
+            setData(json.data);
+            setBrokerStatus(json.broker);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch active holdings:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchHoldings();
+  }, []);
 
   useEffect(() => {
     async function fetchHistory() {
@@ -623,6 +710,7 @@ function PortfolioTab({ user }) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.detail || "Upload failed");
       setData(json.data);
+      setBrokerStatus(null); // uploaded CSV has no broker status
     } catch (err) {
       setError(err.message);
     } finally {
@@ -630,11 +718,35 @@ function PortfolioTab({ user }) {
     }
   }
 
+  async function handleDisconnect() {
+    const token = localStorage.getItem("fc_token");
+    if (!token) return;
+    setLoading(true);
+    try {
+      if (brokerStatus) {
+        await fetch(`${API}/api/portfolio/broker/disconnect/${brokerStatus}`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+      }
+      setData(null);
+      setBrokerStatus(null);
+    } catch (err) {
+      console.error("Failed to disconnect:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const brokers = [
     { id: "zerodha", name: "Zerodha Kite", desc: "Connect Kite account to import your stock holdings", color: "from-orange-500 to-red-600", logo: "Z" },
-    { id: "angelone", name: "Angel One", desc: "Connect Angel One account using SmartAPI gateway", color: "from-blue-500 to-indigo-600", logo: "A" },
-    { id: "groww", name: "Groww", desc: "Connect Groww account using registered credentials", color: "from-emerald-400 to-teal-600", logo: "G" },
-    { id: "upstox", name: "Upstox", desc: "Connect Upstox account to sync holdings securely", color: "from-purple-500 to-indigo-700", logo: "U" }
+    { id: "upstox", name: "Upstox", desc: "Connect Upstox account to sync holdings securely", color: "from-purple-500 to-indigo-700", logo: "U" },
+    { id: "angelone", name: "Angel One", desc: "Connect Angel One account using SmartAPI credentials", color: "from-blue-500 to-indigo-600", logo: "A" },
+    { id: "binance", name: "Binance API", desc: "Connect Binance account using API Key and Secret", color: "from-amber-400 to-yellow-600", logo: "B" },
+    { id: "coindcx", name: "CoinDCX API", desc: "Connect CoinDCX account using API Key and Secret", color: "from-blue-600 to-sky-500", logo: "C" },
+    { id: "groww", name: "Groww", desc: "Groww does not provide a public API. Export/upload CSV.", color: "from-emerald-400 to-teal-600", logo: "G" }
   ];
 
   if (!data) {
@@ -642,6 +754,9 @@ function PortfolioTab({ user }) {
       <div className="space-y-8 animate-in fade-in duration-300">
         <div>
           <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Connect Stock Broker Account</h2>
+          {loading && !activeBroker && (
+            <div className="text-center py-6 text-xs text-slate-400">Loading your portfolio...</div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {brokers.map(b => (
               <div key={b.id} className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-2xl p-6 shadow-lg hover:border-slate-700/60 transition-all flex flex-col justify-between">
@@ -654,7 +769,7 @@ function PortfolioTab({ user }) {
                 </div>
                 <button onClick={() => setActiveBroker(b.id)}
                   className="mt-5 w-full bg-slate-950/40 border border-slate-800/60 hover:border-teal-500/50 hover:bg-teal-500/10 text-slate-300 hover:text-teal-400 font-bold py-2.5 rounded-xl text-xs transition-all">
-                  Link Account
+                  {b.id === "groww" ? "Learn More" : "Link Account"}
                 </button>
               </div>
             ))}
@@ -666,6 +781,7 @@ function PortfolioTab({ user }) {
           <span className="flex-shrink mx-4 text-slate-500 text-[10px] font-bold uppercase tracking-widest">Or</span>
           <div className="flex-grow border-t border-slate-800/60"></div>
         </div>
+
 
         <Card title="Upload Holdings CSV File">
           <form onSubmit={handleUpload} className="flex flex-col sm:flex-row items-center gap-4">
@@ -707,13 +823,13 @@ function PortfolioTab({ user }) {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
+
       {/* 1. Header Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Metric label="Total Invested" value={`₹${totalInvested.toFixed(2)}`} />
         <Metric label="Current Value" value={`₹${totalValue.toFixed(2)}`} />
         <Metric label="Overall P&L" value={`${totalPnL >= 0 ? '+' : ''}₹${totalPnL.toFixed(2)} (${totalPnLPct.toFixed(2)}%)`}
-                color={totalPnL >= 0 ? "text-emerald-600" : "text-red-500"} />
+          color={totalPnL >= 0 ? "text-emerald-600" : "text-red-500"} />
       </div>
 
       {/* Historical Performance Chart */}
@@ -735,10 +851,10 @@ function PortfolioTab({ user }) {
               </div>
             </div>
             <div className="pt-2 border-t border-gray-100">
-              <ScoreBar 
-                label="Avg Piotroski F-Score (Fundamental Quality)" 
-                score={analysis.avg_fscore} max={9} 
-                color={analysis.avg_fscore >= 7 ? "bg-emerald-500" : analysis.avg_fscore >= 4 ? "bg-amber-400" : "bg-red-400"} 
+              <ScoreBar
+                label="Avg Piotroski F-Score (Fundamental Quality)"
+                score={analysis.avg_fscore} max={9}
+                color={analysis.avg_fscore >= 7 ? "bg-emerald-500" : analysis.avg_fscore >= 4 ? "bg-amber-400" : "bg-red-400"}
               />
               <div className="text-xs text-gray-400 text-right mt-1 font-medium">Score of 8-9 indicates strong fundamentals.</div>
             </div>
@@ -775,21 +891,21 @@ function PortfolioTab({ user }) {
                   ${isUp ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"}`}>
                   {initials}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-bold text-slate-200 truncate">{row.ticker}</div>
                   <div className="text-xs text-slate-400 mt-0.5">
                     {row.shares || '-'} shares · avg ₹{row.buy_price ? row.buy_price.toFixed(2) : '-'} · {row.sector}
                   </div>
                 </div>
-                
+
                 <div className="text-right shrink-0">
                   <div className="text-sm font-bold text-slate-200">₹{row.current_value.toFixed(2)}</div>
                   <div className={`text-xs font-bold mt-0.5 ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {isUp ? '+' : ''}{row.pnl_pct.toFixed(1)}%
                   </div>
                 </div>
-                
+
                 <MiniSparkline up={isUp} />
               </div>
             );
@@ -798,8 +914,9 @@ function PortfolioTab({ user }) {
       </Card>
 
       <div className="text-center">
-        <button onClick={() => setData(null)} className="text-sm font-medium text-teal-600 hover:text-teal-700">
-          Disconnect Portfolio / Change Broker
+        <button onClick={handleDisconnect} disabled={loading}
+          className="text-sm font-medium text-rose-500 hover:text-rose-450 transition-colors disabled:opacity-50">
+          {loading ? "Disconnecting..." : brokerStatus ? `Disconnect ${brokerStatus.toUpperCase()} Account` : "Clear CSV Portfolio"}
         </button>
       </div>
     </div>
@@ -840,19 +957,19 @@ function StockDashboard({ data }) {
           setAiSummary(buffer);
         }
       }
-    } catch (e) { 
-      setAiSummary("AI summary unavailable: " + e.message); 
-    } finally { 
-      setAiLoading(false); 
+    } catch (e) {
+      setAiSummary("AI summary unavailable: " + e.message);
+    } finally {
+      setAiLoading(false);
     }
   }
 
 
   const overallColor =
     verdict.overall.includes("Strong Buy") ? "bg-emerald-500 text-white" :
-    verdict.overall.includes("Moderate")   ? "bg-teal-500 text-white" :
-    verdict.overall.includes("Neutral")    ? "bg-slate-700 text-slate-200" :
-    verdict.overall.includes("Caution")    ? "bg-amber-500 text-black" : "bg-rose-500 text-white";
+      verdict.overall.includes("Moderate") ? "bg-teal-500 text-white" :
+        verdict.overall.includes("Neutral") ? "bg-slate-700 text-slate-200" :
+          verdict.overall.includes("Caution") ? "bg-amber-500 text-black" : "bg-rose-500 text-white";
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
@@ -895,8 +1012,8 @@ function StockDashboard({ data }) {
         {["overview", "financials", "technicals", "ai"].map(t => (
           <button key={t} onClick={() => setSubTab(t)}
             className={`flex-1 text-xs font-bold py-2 rounded-lg transition-all duration-200 capitalize
-              ${subTab === t 
-                ? "bg-slate-800 text-slate-100 shadow-sm border border-slate-700/40" 
+              ${subTab === t
+                ? "bg-slate-800 text-slate-100 shadow-sm border border-slate-700/40"
                 : "text-slate-500 hover:text-slate-300 border border-transparent"}`}>
             {t === "ai" ? "AI Advisor" : t}
           </button>
@@ -1027,11 +1144,10 @@ function StockDashboard({ data }) {
                   <span className="text-xs font-medium text-gray-500">RSI (14-day)</span>
                   <div className="text-right">
                     <span className="text-sm font-bold text-gray-900">{tech.rsi?.value}</span>
-                    <span className={`ml-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full capitalize ${
-                      tech.rsi?.signal === "oversold" ? "bg-emerald-100 text-emerald-700" :
-                      tech.rsi?.signal === "overbought" ? "bg-red-100 text-red-700" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>{tech.rsi?.signal}</span>
+                    <span className={`ml-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full capitalize ${tech.rsi?.signal === "oversold" ? "bg-emerald-100 text-emerald-700" :
+                        tech.rsi?.signal === "overbought" ? "bg-red-100 text-red-700" :
+                          "bg-gray-100 text-gray-600"
+                      }`}>{tech.rsi?.signal}</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
@@ -1085,10 +1201,10 @@ function StockDashboard({ data }) {
 // ── Mutual Fund tab ───────────────────────────────────────────────────────────
 
 function MutualFundTab() {
-  const [query, setQuery]       = useState("");
-  const [results, setResults]   = useState([]);
-  const [mfData, setMfData]     = useState(null);
-  const [loading, setLoading]   = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [mfData, setMfData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -1109,7 +1225,7 @@ function MutualFundTab() {
         setShowSuggestions(false);
         return;
       }
-      
+
       const fetchSuggestions = async () => {
         try {
           const res = await fetch(`${API}/api/mf/search`, {
@@ -1173,7 +1289,7 @@ function MutualFundTab() {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/api/mf/search`, {
+      const res = await fetch(`${API}/api/mf/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
@@ -1187,7 +1303,7 @@ function MutualFundTab() {
   async function loadFund(code) {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/api/mf/details`, {
+      const res = await fetch(`${API}/api/mf/details`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scheme_code: code }),
@@ -1202,7 +1318,7 @@ function MutualFundTab() {
   return (
     <div ref={containerRef} className="relative">
       <div className="flex gap-3 mb-4">
-        <input value={query} 
+        <input value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Search MF e.g. HDFC Flexi Cap, Parag Parikh"
@@ -1217,11 +1333,11 @@ function MutualFundTab() {
         <div className="absolute left-0 right-0 top-[48px] mt-1 bg-[#0b101d]/95 backdrop-blur-lg border border-slate-800/90 rounded-xl shadow-2xl shadow-black/60 overflow-hidden z-50 max-h-[300px] overflow-y-auto">
           {results.length > 0 ? (
             results.map((f, index) => (
-              <button key={f.scheme_code} 
+              <button key={f.scheme_code}
                 onClick={() => selectFund(f)}
                 className={`w-full text-left px-4 py-3 border-b border-slate-800/40 hover:bg-slate-850 text-xs last:border-0 transition-colors block
-                  ${index === activeSuggestionIndex 
-                    ? "bg-slate-800/90 text-teal-300" 
+                  ${index === activeSuggestionIndex
+                    ? "bg-slate-800/90 text-teal-300"
                     : "text-slate-300"
                   }`}
               >
@@ -1244,9 +1360,9 @@ function MutualFundTab() {
             <div className="mb-2 text-xs text-gray-400">{mfData.fund_house} · {mfData.category}</div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
               <Metric label="Current NAV" value={`₹${mfData.current_nav?.toFixed(4)}`} />
-              <Metric label="1 Month"  value={pct(mfData.returns?.["1_month_pct"])} color={changeColor(mfData.returns?.["1_month_pct"])} />
-              <Metric label="6 Month"  value={pct(mfData.returns?.["6_month_pct"])} color={changeColor(mfData.returns?.["6_month_pct"])} />
-              <Metric label="1 Year"   value={pct(mfData.returns?.["1_year_pct"])} color={changeColor(mfData.returns?.["1_year_pct"])} />
+              <Metric label="1 Month" value={pct(mfData.returns?.["1_month_pct"])} color={changeColor(mfData.returns?.["1_month_pct"])} />
+              <Metric label="6 Month" value={pct(mfData.returns?.["6_month_pct"])} color={changeColor(mfData.returns?.["6_month_pct"])} />
+              <Metric label="1 Year" value={pct(mfData.returns?.["1_year_pct"])} color={changeColor(mfData.returns?.["1_year_pct"])} />
             </div>
             {mfData.nav_history_monthly && (
               <div className="mt-4">
@@ -1263,25 +1379,76 @@ function MutualFundTab() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function Page() {
-  const [user, setUser]       = useState(null);
-  const [tab, setTab]         = useState("stock");
-  const [ticker, setTicker]   = useState("");
+  const [user, setUser] = useState(null);
+  const [tab, setTab] = useState("stock");
+  const [ticker, setTicker] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult]   = useState(null);
-  const [error, setError]     = useState("");
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const searchContainerRef = useRef(null);
 
-  const popular = ["RELIANCE","TCS","INFY","HDFCBANK","ITC","WIPRO","BAJFINANCE","TATAMOTORS","ASIANPAINT","SUNPHARMA"];
+  const popular = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ITC", "WIPRO", "BAJFINANCE", "TATAMOTORS", "ASIANPAINT", "SUNPHARMA"];
 
   useEffect(() => {
     const savedUser = localStorage.getItem("fc_user");
     if (savedUser) {
-      try { setUser(JSON.parse(savedUser)); } 
+      try { setUser(JSON.parse(savedUser)); }
       catch (e) { localStorage.removeItem("fc_user"); }
+    }
+
+    // Check for OAuth redirect code or request_token
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code") || params.get("request_token");
+    const pendingBroker = localStorage.getItem("pending_broker");
+
+    if (code && pendingBroker) {
+      const savedApiKey = localStorage.getItem("pending_broker_api_key");
+      const savedApiSecret = localStorage.getItem("pending_broker_api_secret");
+
+      localStorage.removeItem("pending_broker");
+      localStorage.removeItem("pending_broker_api_key");
+      localStorage.removeItem("pending_broker_api_secret");
+
+      // Clear URL parameters immediately
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      async function handleOAuthCallback() {
+        setLoading(true);
+        setError("");
+        try {
+          const token = localStorage.getItem("fc_token");
+          const redirectUri = window.location.origin + "/";
+
+          const callbackRes = await fetch(`${API}/api/portfolio/broker/callback/${pendingBroker}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              request_token: code,
+              redirect_uri: redirectUri,
+              api_key: savedApiKey || undefined,
+              api_secret: savedApiSecret || undefined
+            })
+          });
+
+          const callbackJson = await callbackRes.json();
+          if (!callbackRes.ok) throw new Error(callbackJson.detail || "Failed to link holdings");
+
+          setTab("portfolio");
+          window.location.reload();
+        } catch (err) {
+          setError("Broker Connection Failed: " + err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+      handleOAuthCallback();
     }
   }, []);
 
@@ -1311,7 +1478,7 @@ export default function Page() {
         setShowSuggestions(false);
         return;
       }
-      
+
       const fetchSuggestions = async () => {
         try {
           const res = await fetch(`${API}/api/search/symbols?q=${encodeURIComponent(debouncedTicker)}`);
@@ -1368,7 +1535,7 @@ export default function Page() {
     if (!sym) return;
     setLoading(true); setError(""); setResult(null);
     try {
-      const res  = await fetch(`${API}/api/stock/analyze`, {
+      const res = await fetch(`${API}/api/stock/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker: sym }),
@@ -1403,8 +1570,8 @@ export default function Page() {
             ].map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold transition-all duration-200
-                  ${tab === t.id 
-                    ? "bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/20 text-teal-400 shadow-sm" 
+                  ${tab === t.id
+                    ? "bg-gradient-to-r from-teal-500/10 to-cyan-500/10 border border-teal-500/20 text-teal-400 shadow-sm"
                     : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/40 border border-transparent"
                   }`}>
                 <span className="text-sm">{t.icon}</span>
@@ -1453,7 +1620,7 @@ export default function Page() {
               </button>
             </div>
           ) : (
-            <button onClick={() => setTab("portfolio")} 
+            <button onClick={() => setTab("portfolio")}
               className="w-full bg-slate-850 hover:bg-slate-800 text-slate-300 text-xs font-bold py-2.5 rounded-xl border border-slate-800 transition-all text-center">
               Connect Account
             </button>
@@ -1476,7 +1643,7 @@ export default function Page() {
           <>
             <div ref={searchContainerRef} className="relative bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-800/80 p-6 mb-6 shadow-lg shadow-black/10 z-30">
               <form onSubmit={e => { e.preventDefault(); analyze(); }} className="flex gap-3">
-                <input value={ticker} 
+                <input value={ticker}
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   placeholder="Search stock by name or ticker (e.g. Infosys, RELIANCE, TCS)"
@@ -1495,8 +1662,8 @@ export default function Page() {
                         key={item.symbol}
                         onClick={() => selectSuggestion(item.symbol)}
                         className={`w-full text-left px-4 py-3 flex justify-between items-center transition-colors border-b border-slate-800/40 last:border-0
-                          ${index === activeSuggestionIndex 
-                            ? "bg-slate-800/90 text-teal-300" 
+                          ${index === activeSuggestionIndex
+                            ? "bg-slate-800/90 text-teal-300"
                             : "text-slate-300 hover:bg-slate-850 hover:text-slate-200"
                           }`}
                       >
@@ -1550,10 +1717,10 @@ export default function Page() {
               <LoginScreen onLogin={setUser} />
             </div>
           ) : (
-            <PortfolioTab user={user}/>
+            <PortfolioTab user={user} />
           )
         )}
-        
+
         <p className="text-[10px] text-slate-600 text-center mt-12 leading-relaxed">
           For informational purposes only. Not investment advice. Consult a SEBI-registered advisor.
         </p>
