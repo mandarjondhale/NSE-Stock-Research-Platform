@@ -329,7 +329,7 @@ function StockDashboard({ data }) {
   const displayTicker = (data.ticker || "").replace(/\.NS$/i, "").replace(/\.BO$/i, "");
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-5 animate-in fade-in duration-300 w-full">
       {/* Stock Header Card */}
       <div className="bg-zinc-900/90 backdrop-blur-md border border-zinc-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />
@@ -433,7 +433,7 @@ function StockDashboard({ data }) {
       {/* Tab Content */}
       {activeTab === "overview" && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-4 gap-4">
             <Metric
               label="Market Cap"
               value={cr(fund.market_cap)}
@@ -462,7 +462,7 @@ function StockDashboard({ data }) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {price.price_history_30d && (
               <StockPriceChart history={price.price_history_30d} />
             )}
@@ -491,7 +491,7 @@ function StockDashboard({ data }) {
       )}
 
       {activeTab === "financials" && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           <Card title="Valuation & Profitability">
             <div className="space-y-3">
               <Metric label="Price to Book (P/B)" value={num(fund.pb)} />
@@ -531,11 +531,20 @@ function StockDashboard({ data }) {
               <Check label="High Gross Margin" passed={(piot.score || 0) >= 6} />
             </div>
           </Card>
+
+          <Card title="Company Info">
+            <div className="space-y-3">
+              <Metric label="Sector" value={fund.sector || "—"} />
+              <Metric label="Industry" value={fund.industry || "—"} />
+              <Metric label="EPS (TTM)" value={`₹${num(fund.eps)}`} />
+              <Metric label="Dividend Yield" value={pct(fund.dividend_yield)} />
+            </div>
+          </Card>
         </div>
       )}
 
       {activeTab === "technicals" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <Card title="Moving Averages & Indicators">
             <div className="grid grid-cols-2 gap-4">
               <Metric label="50-Day MA" value={`₹${num(tech.ma_50)}`} />
@@ -668,11 +677,11 @@ export default function Page() {
       </header>
 
       {/* ── Main Content ──────────────────────────────────────────────────── */}
-      <main className="flex-1 p-8 max-w-7xl mx-auto w-full space-y-8">
+      <main className="flex-1 px-6 py-6 w-full space-y-6">
         {/* ── Hero Command Center ──────────────────────────────────────── */}
         <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 shadow-2xl shadow-purple-900/10 hover:border-zinc-700/90 transition-all">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 w-full">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div>
               <h1 className="text-xl font-bold tracking-tight text-white mb-1">
                 NSE Stock Research Terminal
               </h1>
@@ -687,9 +696,9 @@ export default function Page() {
                 setShowSuggestions(false);
                 analyze();
               }}
-              className="flex gap-3 w-full md:w-auto relative"
+              className="flex gap-3 w-full lg:w-auto relative"
             >
-              <div ref={searchContainerRef} className="relative flex-1 md:w-64">
+              <div ref={searchContainerRef} className="relative flex-1 lg:w-96">
                 <input
                   id="stock-search-input"
                   value={ticker}
