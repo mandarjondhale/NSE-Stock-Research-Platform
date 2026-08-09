@@ -1,15 +1,14 @@
 """
-data_fetcher.py — Comprehensive Market & Stock Analysis Engine
-===============================================================
-Fetches price data, fundamentals, technical indicators, Piotroski scores,
-and mutual fund NAVs for Indian equities (NSE & BSE).
+data_fetcher.py — NSE Stock Analysis Engine
+============================================
+Fetches price data, fundamentals, technical indicators, and Piotroski scores
+for Indian equities listed on NSE.
 """
 
 import os
 import json
 import time
 import asyncio
-import urllib.request
 from datetime import datetime, timedelta
 import requests
 import yfinance as yf
@@ -195,53 +194,7 @@ def get_piotroski_score(ticker: str) -> dict:
     }
 
 
-def get_mf_nav(query: str) -> list:
-    """Search mutual fund NAVs via AMFI API."""
-    try:
-        url = f"https://api.mfapi.in/mf/search?q={urllib.parse.quote(query)}"
-        r = requests.get(url, timeout=5)
-        if r.status_code == 200:
-            return [{"scheme_code": item["schemeCode"], "scheme_name": item["schemeName"]} for item in r.json()[:10]]
-    except Exception:
-        pass
-    return [
-        {"scheme_code": 122639, "scheme_name": "Parag Parikh Flexi Cap Fund - Direct Plan - Growth"},
-        {"scheme_code": 119598, "scheme_name": "Mirae Asset Large Cap Fund - Direct Plan - Growth"}
-    ]
 
-
-def get_mf_details(scheme_code: int) -> dict:
-    """Get mutual fund NAV details."""
-    try:
-        url = f"https://api.mfapi.in/mf/{scheme_code}"
-        r = requests.get(url, timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            nav_data = data.get("data", [])
-            if nav_data:
-                curr_nav = float(nav_data[0]["nav"])
-                return {
-                    "scheme_code": scheme_code,
-                    "scheme_name": data.get("meta", {}).get("scheme_name", "Mutual Fund"),
-                    "fund_house": data.get("meta", {}).get("fund_house", "AMFI"),
-                    "category": data.get("meta", {}).get("scheme_category", "Equity"),
-                    "current_nav": curr_nav,
-                    "returns": {"1_month_pct": 2.4, "6_month_pct": 8.5, "1_year_pct": 18.2},
-                    "nav_history_monthly": {
-                        item["date"]: float(item["nav"]) for item in nav_data[:365:30]
-                    }
-                }
-    except Exception:
-        pass
-    return {
-        "scheme_code": scheme_code,
-        "scheme_name": "Parag Parikh Flexi Cap Fund",
-        "fund_house": "PPFAS Mutual Fund",
-        "category": "Equity - Flexi Cap",
-        "current_nav": 74.85,
-        "returns": {"1_month_pct": 2.5, "6_month_pct": 9.1, "1_year_pct": 19.4},
-        "nav_history_monthly": {"01-Jan-2026": 70.2, "01-Feb-2026": 72.1, "01-Mar-2026": 74.85}
-    }
 
 
 def full_stock_analysis(ticker: str) -> dict:

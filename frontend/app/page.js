@@ -8,9 +8,10 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function cr(v) {
   if (v == null) return "—";
-  if (v >= 100000) return `₹${(v / 100000).toFixed(1)}L Cr`;
-  if (v >= 1000) return `₹${(v / 1000).toFixed(1)}K Cr`;
-  return `₹${v.toFixed(1)} Cr`;
+  if (v >= 10000000) return `₹${(v / 10000000).toFixed(1)} Cr`;
+  if (v >= 100000) return `₹${(v / 100000).toFixed(1)} L`;
+  if (v >= 1000) return `₹${(v / 1000).toFixed(1)} K`;
+  return `₹${v.toFixed(1)}`;
 }
 
 function pct(v, decimals = 1) {
@@ -232,161 +233,7 @@ function Check({ label, passed }) {
 }
 
 
-// ── Authentication Screen ─────────────────────────────────────────────────────
-
-function LoginScreen({ onLogin }) {
-  const [mode, setMode] = useState("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [verifyMsg, setVerifyMsg] = useState("");
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) return;
-    if (mode === "signup" && !name.trim()) return;
-    setLoading(true);
-    setError("");
-    setVerifyMsg("");
-
-    const endpoint =
-      mode === "signup"
-        ? `${API}/api/auth/signup`
-        : `${API}/api/auth/login`;
-
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.detail || "Something went wrong");
-
-      if (mode === "signup") {
-        setVerifyMsg("Account created! Check your email for verification link.");
-        setMode("login");
-        setPassword("");
-        return;
-      }
-
-      localStorage.setItem("fc_user", JSON.stringify(json.data));
-      localStorage.setItem("fc_token", json.token || "");
-      onLogin(json.data);
-    } catch (e) {
-      if (e.name === "TypeError" || e.message === "Failed to fetch") {
-        setError(`Unable to connect to backend server (${API}). Please verify the Python FastAPI server is running.`);
-      } else {
-        setError(e.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="flex items-center justify-center w-full py-16">
-      <div className="bg-zinc-900/90 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-8 w-full max-w-md shadow-2xl shadow-purple-900/10 hover:border-zinc-700/80 transition-all">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-black text-lg mb-3 shadow-lg shadow-purple-500/25">
-            FC
-          </div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">
-            {mode === "login" ? "Welcome to FinCopilot" : "Create your account"}
-          </h2>
-          <p className="text-xs text-zinc-400 mt-1.5 font-medium">
-            Institutional-grade stock research & portfolio analytics
-          </p>
-        </div>
-
-        <div className="flex gap-1 bg-zinc-950/80 border border-zinc-800/80 rounded-xl p-1 mb-6">
-          {["login", "signup"].map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => {
-                setMode(m);
-                setError("");
-                setVerifyMsg("");
-              }}
-              className={`flex-1 text-xs py-2.5 rounded-lg font-bold transition-all duration-200 ${
-                mode === m
-                  ? "bg-purple-600 text-white shadow-md shadow-purple-950/40"
-                  : "text-zinc-400 hover:text-zinc-200"
-              }`}
-            >
-              {m === "login" ? "Log in" : "Sign up"}
-            </button>
-          ))}
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === "signup" && (
-            <div>
-              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5 block">
-                Full name
-              </label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Mandar Jondhale"
-                className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500/60 transition-all font-medium"
-              />
-            </div>
-          )}
-          <div>
-            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5 block">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500/60 transition-all font-medium"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5 block">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500/60 transition-all font-medium"
-            />
-          </div>
-
-          {error && (
-            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl px-3.5 py-2.5 font-medium">
-              {error}
-            </div>
-          )}
-          {verifyMsg && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-xl px-3.5 py-2.5 font-medium">
-              {verifyMsg}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl text-xs font-bold shadow-lg shadow-purple-500/20 transition-all disabled:opacity-50 mt-2 active:scale-95"
-          >
-            {loading ? "Verifying..." : mode === "login" ? "Sign In →" : "Create Account →"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-
-// ── Interactive Price Trend Charts ────────────────────────────────────────────
+// ── 30-Day Price Trend Chart ─────────────────────────────────────────────────
 
 function StockPriceChart({ history }) {
   const canvasRef = useRef(null);
@@ -414,7 +261,7 @@ function StockPriceChart({ history }) {
             {
               label: "Price (₹)",
               data: dataPoints,
-              borderColor: "#a855f7", // purple-500
+              borderColor: "#a855f7",
               borderWidth: 2,
               pointRadius: 1,
               pointHoverRadius: 6,
@@ -466,69 +313,8 @@ function StockPriceChart({ history }) {
   );
 }
 
-function MFNavChart({ history }) {
-  const canvasRef = useRef(null);
 
-  useEffect(() => {
-    if (!canvasRef.current || !history) return;
-    let chartInstance = null;
-
-    try {
-      const Chart = require("chart.js/auto");
-      const sortedDates = Object.keys(history).sort();
-      const dataPoints = sortedDates.map((d) => history[d]);
-
-      chartInstance = new Chart(canvasRef.current, {
-        type: "line",
-        data: {
-          labels: sortedDates,
-          datasets: [
-            {
-              label: "NAV (₹)",
-              data: dataPoints,
-              borderColor: "#3b82f6", // blue-500
-              borderWidth: 2,
-              pointRadius: 2,
-              tension: 0.2,
-              fill: true,
-              backgroundColor: "rgba(59, 130, 246, 0.08)",
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { maxTicksLimit: 6, font: { size: 10 }, color: "#71717a" },
-            },
-            y: {
-              grid: { color: "rgba(255, 255, 255, 0.03)" },
-              ticks: { font: { size: 10 }, color: "#71717a" },
-            },
-          },
-        },
-      });
-    } catch (err) {
-      console.error("MF Chart notice:", err);
-    }
-
-    return () => {
-      if (chartInstance) chartInstance.destroy();
-    };
-  }, [history]);
-
-  return (
-    <div className="w-full h-60 bg-zinc-950/60 rounded-xl p-4 border border-zinc-800/60">
-      <canvas ref={canvasRef} />
-    </div>
-  );
-}
-
-
-// ── Stock Dashboard Tab ───────────────────────────────────────────────────────
+// ── Stock Analysis Dashboard ─────────────────────────────────────────────────
 
 function StockDashboard({ data }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -597,6 +383,28 @@ function StockDashboard({ data }) {
               }}
             />
           </div>
+        </div>
+
+        {/* Performance Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: "1D", val: price.change_1d_pct },
+            { label: "1M", val: price.change_1m_pct },
+            { label: "6M", val: price.change_6m_pct },
+            { label: "1Y", val: price.change_1y_pct },
+          ].map(({ label, val }) => (
+            <div
+              key={label}
+              className="bg-zinc-950/60 rounded-xl p-3 border border-zinc-800/60 text-center"
+            >
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">
+                {label} Return
+              </div>
+              <div className={`text-sm font-bold tabular-nums ${changeColor(val)}`}>
+                {pct(val)}
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Tab Selection */}
@@ -772,189 +580,9 @@ function StockDashboard({ data }) {
 }
 
 
-// ── Mutual Funds Tab ──────────────────────────────────────────────────────────
-
-function MutualFundTab() {
-  const [mfQuery, setMfQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [mfData, setMfData] = useState(null);
-
-  async function handleSearch(e) {
-    e.preventDefault();
-    if (!mfQuery.trim()) return;
-    setLoading(true);
-    setMfData(null);
-    try {
-      const res = await fetch(`${API}/api/mf/search?q=${encodeURIComponent(mfQuery)}`);
-      const json = await res.json();
-      setResults(json.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function selectMF(code) {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API}/api/mf/details/${code}`);
-      const json = await res.json();
-      setMfData(json.data);
-      setResults([]);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="space-y-6">
-      <Card title="Mutual Fund Terminal">
-        <form onSubmit={handleSearch} className="flex gap-3">
-          <input
-            value={mfQuery}
-            onChange={(e) => setMfQuery(e.target.value)}
-            placeholder="Search Mutual Fund (e.g., Parag Parikh, Mirae Asset)..."
-            className="flex-1 bg-zinc-950/80 border border-zinc-800/80 rounded-xl px-4 py-3 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 font-medium"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all shrink-0"
-          >
-            Search Fund
-          </button>
-        </form>
-
-        {results.length > 0 && (
-          <div className="mt-4 space-y-2 max-h-60 overflow-y-auto">
-            {results.map((mf) => (
-              <button
-                key={mf.scheme_code}
-                onClick={() => selectMF(mf.scheme_code)}
-                className="w-full text-left p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/40 hover:border-purple-500/40 text-xs font-semibold text-zinc-200 transition-all flex items-center justify-between"
-              >
-                <span>{mf.scheme_name}</span>
-                <span className="text-purple-400 text-xs font-bold">Select →</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      {mfData && (
-        <Card title={mfData.scheme_name}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <Metric label="Current NAV" value={`₹${num(mfData.current_nav, 4)}`} />
-            <Metric label="1 Month" value={pct(mfData.returns?.["1_month_pct"])} color={changeColor(mfData.returns?.["1_month_pct"])} />
-            <Metric label="6 Month" value={pct(mfData.returns?.["6_month_pct"])} color={changeColor(mfData.returns?.["6_month_pct"])} />
-            <Metric label="1 Year" value={pct(mfData.returns?.["1_year_pct"])} color={changeColor(mfData.returns?.["1_year_pct"])} />
-          </div>
-
-          {mfData.nav_history_monthly && (
-            <MFNavChart history={mfData.nav_history_monthly} />
-          )}
-        </Card>
-      )}
-    </div>
-  );
-}
-
-
-// ── Portfolio Tab ─────────────────────────────────────────────────────────────
-
-function PortfolioTab({ user }) {
-  const [holdings, setHoldings] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("fc_token");
-    fetch(`${API}/api/portfolio/holdings`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setHoldings(data.data?.holdings || []);
-        }
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const totalValue = holdings.reduce((acc, h) => acc + (h.quantity * h.last_price), 0);
-  const totalPnL = holdings.reduce((acc, h) => acc + (h.pnl || 0), 0);
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Metric label="Portfolio Value" value={`₹${num(totalValue)}`} sub="Live Holdings" />
-        <Metric
-          label="Total P&L"
-          value={`₹${num(totalPnL)}`}
-          color={changeColor(totalPnL)}
-        />
-        <Metric label="Active Counters" value={holdings.length || 4} sub="Connected Equities" />
-      </div>
-
-      <Card title="Connected Portfolio Holdings">
-        {loading ? (
-          <div className="py-8 text-center text-xs text-zinc-500 animate-pulse">
-            Fetching connected brokerage holdings...
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-zinc-800 text-zinc-400 font-bold uppercase text-[10px]">
-                  <th className="py-3 px-4">Symbol</th>
-                  <th className="py-3 px-4">Qty</th>
-                  <th className="py-3 px-4">Avg Price</th>
-                  <th className="py-3 px-4">LTP</th>
-                  <th className="py-3 px-4">P&L</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(holdings.length > 0
-                  ? holdings
-                  : [
-                      { symbol: "RELIANCE", quantity: 25, average_price: 2450.0, last_price: 2980.0, pnl: 13250.0 },
-                      { symbol: "TCS", quantity: 15, average_price: 3500.0, last_price: 3950.0, pnl: 6750.0 },
-                      { symbol: "INFY", quantity: 40, average_price: 1420.0, last_price: 1580.0, pnl: 6400.0 },
-                      { symbol: "HDFCBANK", quantity: 30, average_price: 1600.0, last_price: 1520.0, pnl: -2400.0 },
-                    ]
-                ).map((h, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-zinc-800/40 hover:bg-zinc-800/40 transition-colors"
-                  >
-                    <td className="py-3.5 px-4 font-bold text-white uppercase">{h.symbol || h.tradingsymbol}</td>
-                    <td className="py-3.5 px-4 font-semibold tabular-nums text-zinc-300">{h.quantity}</td>
-                    <td className="py-3.5 px-4 font-semibold tabular-nums text-zinc-300">₹{num(h.average_price)}</td>
-                    <td className="py-3.5 px-4 font-bold tabular-nums text-white">₹{num(h.last_price)}</td>
-                    <td className={`py-3.5 px-4 font-bold tabular-nums ${changeColor(h.pnl)}`}>
-                      {pct((h.pnl / (h.quantity * h.average_price)) * 100)} (₹{num(h.pnl)})
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-
-// ── Main Page Layout Component ────────────────────────────────────────────────
+// ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function Page() {
-  const [user, setUser] = useState(null);
-  const [tab, setTab] = useState("stock");
   const [ticker, setTicker] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -965,16 +593,8 @@ export default function Page() {
   const searchContainerRef = useRef(null);
 
   const popular = [
-    "RELIANCE",
-    "TCS",
-    "INFY",
-    "HDFCBANK",
-    "ITC",
-    "WIPRO",
-    "BAJFINANCE",
-    "TATAMOTORS",
-    "ASIANPAINT",
-    "SUNPHARMA",
+    "RELIANCE", "TCS", "INFY", "HDFCBANK", "ITC",
+    "WIPRO", "BAJFINANCE", "TATAMOTORS", "ASIANPAINT", "SUNPHARMA",
   ];
 
   const handleInputChange = (val) => {
@@ -1002,17 +622,6 @@ export default function Page() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem("fc_user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        localStorage.removeItem("fc_user");
-      }
-    }
-  }, []);
-
   async function analyze(t) {
     const sym = (t || ticker).trim().toUpperCase();
     if (!sym) return;
@@ -1030,7 +639,7 @@ export default function Page() {
       setResult(json.data);
     } catch (e) {
       if (e.name === "TypeError" || e.message === "Failed to fetch") {
-        setError(`Unable to connect to backend server at ${API}. Please ensure the backend is running.`);
+        setError(`Unable to connect to backend server at ${API}. Please ensure the FastAPI backend is running.`);
       } else {
         setError(e.message);
       }
@@ -1041,7 +650,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans selection:bg-purple-500/30">
-      {/* ── 1. Top Glassmorphic Navigation ─────────────────────────────────── */}
+      {/* ── Top Navigation ─────────────────────────────────────────────── */}
       <header className="backdrop-blur-md bg-zinc-950/80 border-b border-zinc-800/80 sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between gap-6 shadow-xl shadow-black/40">
         <div className="flex items-center gap-3 shrink-0">
           <div className="w-9 h-9 bg-gradient-to-tr from-purple-600 via-indigo-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25 ring-1 ring-purple-400/30">
@@ -1052,184 +661,114 @@ export default function Page() {
           </span>
         </div>
 
-
-
-        {/* User Account / Connection */}
-        <div className="flex items-center gap-3 shrink-0">
-          {user ? (
-            <div className="flex items-center gap-2.5 bg-zinc-900 border border-zinc-800/80 px-3 py-1.5 rounded-full">
-              <div className="w-6 h-6 rounded-full bg-purple-600 text-white font-bold text-[10px] flex items-center justify-center uppercase">
-                {user.email[0]}
-              </div>
-              <span className="text-xs font-semibold text-zinc-300 truncate max-w-[120px]">
-                {user.name || user.email}
-              </span>
-            </div>
-          ) : (
-            <button
-              onClick={() => setTab("portfolio")}
-              className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-4 py-2 rounded-full transition-all shadow-md shadow-purple-950/40"
-            >
-              Sign In
-            </button>
-          )}
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[11px] font-semibold text-zinc-400">NSE Live</span>
         </div>
       </header>
 
-      {/* ── Main Layout Body ─────────────────────────────────────────────────── */}
-      <div className="flex flex-1">
-        {/* ── 2. Collapsible Left Sidebar ───────────────────────────────────── */}
-        <aside className="w-64 bg-zinc-950 border-r border-zinc-800/80 p-4 flex flex-col justify-between shrink-0">
-          <div className="space-y-1.5">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider px-3 mb-2 block">
-              Navigation
-            </span>
+      {/* ── Main Content ──────────────────────────────────────────────────── */}
+      <main className="flex-1 p-8 max-w-7xl mx-auto w-full space-y-8">
+        {/* ── Hero Command Center ──────────────────────────────────────── */}
+        <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 shadow-2xl shadow-purple-900/10 hover:border-zinc-700/90 transition-all">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="flex-1 w-full">
+              <h1 className="text-xl font-bold tracking-tight text-white mb-1">
+                NSE Stock Research Terminal
+              </h1>
+              <p className="text-xs text-zinc-400 font-medium">
+                Enter any NSE ticker to perform quantitative Piotroski &amp; fundamental analysis.
+              </p>
+            </div>
 
-            {[
-              { id: "stock", label: "Stock Terminal" },
-              { id: "mutual_fund", label: "Mutual Funds" },
-              { id: "portfolio", label: "My Portfolio" },
-            ].map((t) => (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setShowSuggestions(false);
+                analyze();
+              }}
+              className="flex gap-3 w-full md:w-auto relative"
+            >
+              <div ref={searchContainerRef} className="relative flex-1 md:w-64">
+                <input
+                  id="stock-search-input"
+                  value={ticker}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onFocus={() => { if (ticker.trim()) setShowSuggestions(true); }}
+                  placeholder="e.g. RELIANCE, TATAMOTORS..."
+                  className="bg-zinc-950 border border-zinc-800/90 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 font-medium w-full"
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-md border border-zinc-800/90 rounded-xl shadow-2xl overflow-hidden z-50 max-h-72 overflow-y-auto">
+                    {suggestions.map((item) => (
+                      <button
+                        key={item.symbol}
+                        type="button"
+                        onClick={() => {
+                          setTicker(item.symbol);
+                          setShowSuggestions(false);
+                          analyze(item.symbol);
+                        }}
+                        className="w-full text-left px-3.5 py-2.5 hover:bg-zinc-800/80 transition-colors flex items-center justify-between border-b border-zinc-800/40 last:border-0 group"
+                      >
+                        <div>
+                          <span className="font-bold text-xs text-purple-300 block">{item.symbol}</span>
+                          <span className="text-[11px] text-zinc-400 truncate max-w-[180px] block">{item.name}</span>
+                        </div>
+                        <span className="text-[10px] text-purple-400/80 font-bold uppercase tracking-wider">Select →</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-bold transition-all duration-200 ${
-                  tab === t.id
-                    ? "bg-purple-500/10 text-purple-300 border-l-2 border-purple-500 shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60 border-l-2 border-transparent"
-                }`}
+                id="analyze-button"
+                type="submit"
+                disabled={loading}
+                className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-purple-500/20 active:scale-95 transition-all text-xs tracking-wide shrink-0"
               >
-                <span>{t.label}</span>
+                {loading ? "Analyzing..." : "Analyze →"}
+              </button>
+            </form>
+          </div>
+
+          {/* Quick Suggestion Pills */}
+          <div className="flex items-center gap-2 mt-5 overflow-x-auto pt-2 border-t border-zinc-800/40 text-xs">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider shrink-0">
+              Quick Picks:
+            </span>
+            {popular.map((s) => (
+              <button
+                key={s}
+                onClick={() => {
+                  setTicker(s);
+                  analyze(s);
+                }}
+                className="rounded-full border border-zinc-800/80 bg-zinc-950 text-zinc-300 font-medium px-3.5 py-1 text-[11px] hover:scale-105 hover:border-purple-500/40 hover:text-purple-300 transition-all cursor-pointer shadow-sm shrink-0"
+              >
+                {s}
               </button>
             ))}
           </div>
+        </div>
 
-          <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800/60 mt-auto">
-            <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-1">
-              Platform Status
-            </div>
-            <div className="text-xs font-semibold text-zinc-300 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              NSE Live Feed Connected
-            </div>
+        {error && (
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl p-4 text-xs font-semibold">
+            ⚠ {error}
           </div>
-        </aside>
+        )}
 
-        {/* ── Main Workspace Content ─────────────────────────────────────────── */}
-        <main className="flex-1 p-8 max-w-7xl mx-auto w-full space-y-8">
-          {tab === "stock" && (
-            <>
-              {/* ── 3. Hero Command Center ───────────────────────────────────── */}
-              <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 shadow-2xl shadow-purple-900/10 hover:border-zinc-700/90 transition-all">
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                  <div className="flex-1 w-full">
-                    <h1 className="text-xl font-bold tracking-tight text-white mb-1">
-                      Stock Research Command Center
-                    </h1>
-                    <p className="text-xs text-zinc-400 font-medium">
-                      Enter any NSE ticker symbol to perform quantitative Piotroski & fundamental audits.
-                    </p>
-                  </div>
+        {loading && (
+          <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-12 text-center">
+            <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs font-bold text-zinc-400">
+              Computing quantitative indicators and financial health ratios...
+            </p>
+          </div>
+        )}
 
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setShowSuggestions(false);
-                      analyze();
-                    }}
-                    className="flex gap-3 w-full md:w-auto relative"
-                  >
-                    <div ref={searchContainerRef} className="relative flex-1 md:w-64">
-                      <input
-                        value={ticker}
-                        onChange={(e) => handleInputChange(e.target.value)}
-                        onFocus={() => { if (ticker.trim()) setShowSuggestions(true); }}
-                        placeholder="e.g. RELIANCE, TATAMOTORS..."
-                        className="bg-zinc-950 border border-zinc-800/90 rounded-xl px-4 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 font-medium w-full"
-                      />
-                      {showSuggestions && suggestions.length > 0 && (
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-md border border-zinc-800/90 rounded-xl shadow-2xl overflow-hidden z-50 max-h-72 overflow-y-auto">
-                          {suggestions.map((item) => (
-                            <button
-                              key={item.symbol}
-                              type="button"
-                              onClick={() => {
-                                setTicker(item.symbol);
-                                setShowSuggestions(false);
-                                analyze(item.symbol);
-                              }}
-                              className="w-full text-left px-3.5 py-2.5 hover:bg-zinc-800/80 transition-colors flex items-center justify-between border-b border-zinc-800/40 last:border-0 group"
-                            >
-                              <div>
-                                <span className="font-bold text-xs text-purple-300 block">{item.symbol}</span>
-                                <span className="text-[11px] text-zinc-400 truncate max-w-[180px] block">{item.name}</span>
-                              </div>
-                              <span className="text-[10px] text-purple-400/80 font-bold uppercase tracking-wider">Select →</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-purple-500/20 active:scale-95 transition-all text-xs tracking-wide shrink-0"
-                    >
-                      {loading ? "Analyzing..." : "Analyze Stock →"}
-                    </button>
-                  </form>
-                </div>
-
-                {/* Suggestion Pills */}
-                <div className="flex items-center gap-2 mt-5 overflow-x-auto pt-2 border-t border-zinc-800/40 text-xs">
-                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider shrink-0">
-                    Quick Suggestions:
-                  </span>
-                  {popular.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => {
-                        setTicker(s);
-                        analyze(s);
-                      }}
-                      className="rounded-full border border-zinc-800/80 bg-zinc-950 text-zinc-300 font-medium px-3.5 py-1 text-[11px] hover:scale-105 hover:border-purple-500/40 hover:text-purple-300 transition-all cursor-pointer shadow-sm shrink-0"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {error && (
-                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl p-4 text-xs font-semibold">
-                  ⚠ {error}
-                </div>
-              )}
-
-              {loading && (
-                <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-12 text-center">
-                  <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-xs font-bold text-zinc-400">
-                    Computing quantitative indicators and financial health ratios...
-                  </p>
-                </div>
-              )}
-
-              {result && !loading && <StockDashboard data={result} />}
-            </>
-          )}
-
-          {tab === "mutual_fund" && <MutualFundTab />}
-
-          {tab === "portfolio" && (
-            !user ? (
-              <LoginScreen onLogin={setUser} />
-            ) : (
-              <PortfolioTab user={user} />
-            )
-          )}
-        </main>
-      </div>
+        {result && !loading && <StockDashboard data={result} />}
+      </main>
     </div>
   );
 }

@@ -8,10 +8,6 @@ requests==2.32.3
 python-dotenv==1.0.1
 pydantic==2.9.2
 beautifulsoup4==4.12.3
-supabase
-kiteconnect
-python-multipart
 
-# Optional — only needed if you use /api/stock/summarize
+# Optional — only needed if you use /api/stock/summarize (AI summary tab)
 google-generativeai==0.8.3
-
