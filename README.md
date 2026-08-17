@@ -3,7 +3,7 @@
 > A full-stack quantitative stock research terminal for Indian equities listed on the NSE.
 > Search any stock, get live price data, fundamental ratios, Piotroski scoring, technical indicators, and an optional AI-generated summary — all in one dark-mode dashboard.
 
-**Live Demo →** [fincopilot.vercel.app](https://fincopilot.vercel.app) &nbsp;|&nbsp; **API →** [fincopilot-api.onrender.com](https://fincopilot-api.onrender.com)
+ 
 
 ---
 
