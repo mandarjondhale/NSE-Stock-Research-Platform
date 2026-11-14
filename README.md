@@ -1,27 +1,49 @@
-# NSE Stock Research Platform
+<div align="center">
 
-> A full-stack quantitative stock research terminal for Indian equities listed on the NSE.
-> Search any stock, get live price data, fundamental ratios, Piotroski scoring, technical indicators, and an optional AI-generated summary — all in one dark-mode dashboard.
+<!-- Animated Banner SVG -->
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=3000&pause=1000&color=E84545&center=true&vCenter=true&width=600&lines=NSE+Stock+Research+Platform;Real-time+Quantitative+Analysis;Built+for+Indian+Equities" alt="Typing SVG" />
 
- 
+<br/>
+
+<img src="https://readme-typing-svg.demolab.com?font=Inter&size=16&duration=4000&pause=800&color=8B949E&center=true&vCenter=true&width=700&lines=Full-stack+research+terminal+for+4%2C000%2B+NSE+stocks;Live+prices+%E2%80%A2+Piotroski+scoring+%E2%80%A2+RSI+%2F+MACD+%E2%80%A2+AI+summaries;Zero+LLM+required+%E2%80%94+works+100%25+offline" alt="Subtitle" />
+
+<br/><br/>
+
+<!-- Badges -->
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-v3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Render](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
+![Vercel](https://img.shields.io/badge/Frontend-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+
+</div>
 
 ---
 
-## Features
+## ✨ Features
 
-- **NSE Symbol Search** — Fuzzy search across all active NSE equities (4,000+ stocks), scored by relevance (exact match → prefix → contains)
-- **Live Price Data** — Current price, 1D / 1M / 6M / 1Y returns, 52-week high/low range bar, annual volatility
-- **30-Day Price Chart** — Interactive Chart.js line chart with candlestick-style hover
-- **Fundamental Analysis** — P/E, P/B, ROE, Debt/Equity, EPS, Revenue & Profit Growth (YoY), Market Cap
-- **Piotroski F-Score** — 9-point financial health checklist (profitability, leverage, operating efficiency)
-- **Technical Indicators** — RSI (14-day), MACD signal, 50-Day MA, 200-Day MA, Technical Score /100
-- **AI Summary** *(optional)* — Gemini 1.5 Flash generates a 3-sentence plain-language summary for retail investors; streams token-by-token via SSE
-- **Cache + Pre-warm** — In-memory cache with smart market-hours awareness; top 10 stocks pre-warmed every 4 minutes
-- **Zero-LLM Core** — The entire analysis pipeline runs without any AI API key; Gemini is purely optional
+<div align="center">
+
+| 🔍 | Feature | Description |
+|:--:|---------|-------------|
+| 📡 | **NSE Symbol Search** | Fuzzy search across 4,000+ active NSE equities — exact match → prefix → contains |
+| 💹 | **Live Price Data** | Current price, 1D / 1M / 6M / 1Y returns, 52-week range bar, annual volatility |
+| 📊 | **30-Day Price Chart** | Interactive Chart.js line chart with hover tooltips |
+| 🧮 | **Fundamental Analysis** | P/E, P/B, ROE, D/E, EPS, Revenue & Profit Growth (YoY), Market Cap |
+| 🏆 | **Piotroski F-Score** | All 9 criteria evaluated from real financial statements — profitability, leverage, efficiency |
+| 📈 | **Technical Indicators** | Wilder RSI (14), MACD (12/26/9), 50/200-Day SMA, signal-based score /100 |
+| 🤖 | **AI Summary** *(optional)* | Gemini 1.5 Flash — 3-sentence plain-language summary, streamed token-by-token |
+| ⚡ | **Smart Cache** | In-memory TTL cache with IST market-hours awareness; top 10 stocks pre-warmed every 4 min |
+| 🔒 | **Zero-LLM Core** | Full analysis pipeline runs with zero AI API key — Gemini is purely optional |
+
+</div>
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
+
+<div align="center">
 
 | Layer | Technology |
 |-------|-----------|
@@ -32,17 +54,19 @@
 | **Data Validation** | Pydantic v2 |
 | **Market Data** | yFinance (Yahoo Finance) |
 | **Fundamental Data** | Screener.in scraper (BeautifulSoup4) |
-| **AI Summaries** | Google Gemini 1.5 Flash (optional) |
+| **AI Summaries** | Google Gemini 1.5 Flash *(optional)* |
 | **Config** | python-dotenv |
 | **Frontend Deploy** | Vercel |
 | **Backend Deploy** | Render |
 
+</div>
+
 ---
 
-## Project Structure
+## 🗂 Project Structure
 
 ```
-FinAgent/
+NSE-Stock-Research-Platform/
 ├── backend/
 │   ├── main.py               # FastAPI app, all API routes, startup tasks
 │   ├── data_fetcher.py       # Price data, fundamentals, technicals, Piotroski
@@ -66,16 +90,20 @@ FinAgent/
 
 ---
 
-## API Endpoints
+## 🌐 API Endpoints
+
+<div align="center">
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/` | Health check + endpoint list |
-| `POST` | `/api/stock/analyze` | Full analysis — price, fundamentals, technicals, Piotroski |
+| `POST` | `/api/stock/analyze` | Full analysis — price, fundamentals, technicals, Piotroski, historical |
 | `GET` | `/api/stock/price/{ticker}` | Live price data only |
 | `GET` | `/api/search/symbols?q=<query>` | Fuzzy NSE symbol search |
 | `POST` | `/api/stock/summarize` | AI summary (requires `GEMINI_API_KEY`) |
 | `POST` | `/api/stock/summarize/stream` | Streaming AI summary (SSE) |
+
+</div>
 
 ### Example Request
 
@@ -87,18 +115,23 @@ curl -X POST https://fincopilot-api.onrender.com/api/stock/analyze \
 
 ---
 
-## Frontend Dashboard Tabs
+## 🖥 Dashboard Tabs
+
+<div align="center">
 
 | Tab | What it shows |
 |-----|--------------|
-| **Overview** | Market cap, P/E, ROE, Piotroski score, 30-day chart, verdict flags |
+| **Overview** | Market cap, P/E, ROE, Piotroski score, 30-day chart, verdict flags & warnings |
 | **Financials** | P/B, D/E, dividend yield, EPS, sales & profit growth YoY, Piotroski checklist |
-| **Technicals** | 50/200-Day MA, RSI, MACD signal, technical score |
-| **AI Rating** | Institutional-style 3-sentence analysis summary |
+| **Technicals** | 50/200-Day MA, RSI, MACD signal & histogram, technical score /100 |
+| **Historical** | 4-year annual snapshots — revenue, net income, gross margin, CFO, debt trends |
+| **AI Rating** | 3-sentence institutional-style analysis summary |
+
+</div>
 
 ---
 
-## Local Setup
+## 🚀 Local Setup
 
 ### Backend
 
@@ -110,7 +143,6 @@ venv\Scripts\activate          # Windows
 
 pip install -r requirements.txt
 
-# Copy and configure environment
 cp .env.example .env
 # Add GEMINI_API_KEY=... if you want AI summaries (optional)
 
@@ -123,7 +155,6 @@ uvicorn main:app --reload --port 8000
 cd frontend
 npm install
 
-# Set backend URL
 echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 
 npm run dev
@@ -132,7 +163,7 @@ npm run dev
 
 ---
 
-## Environment Variables
+## 🔑 Environment Variables
 
 ### Backend (`backend/.env`)
 
@@ -148,7 +179,7 @@ npm run dev
 
 ---
 
-## Deployment
+## ☁️ Deployment
 
 ### Backend → Render
 
@@ -158,26 +189,34 @@ The `render.yaml` at the root auto-configures the Render service:
 startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
-Set `GEMINI_API_KEY` manually in the Render dashboard (Environment → Secret Files).
+Set `GEMINI_API_KEY` in the Render dashboard under **Environment → Secret Files**.
 
 ### Frontend → Vercel
 
 1. Connect the `frontend/` directory to Vercel
-2. Set `NEXT_PUBLIC_API_URL` to your Render backend URL in Vercel Environment Variables
+2. Set `NEXT_PUBLIC_API_URL` to your Render backend URL
 3. Deploy — Vercel auto-detects Next.js
 
 ---
 
-## Data Sources
+## 📦 Data Sources
+
+<div align="center">
 
 | Source | Data |
 |--------|------|
-| **Yahoo Finance** (via yFinance) | Live price, OHLCV history, basic fundamentals |
-| **Screener.in** (scraped) | P/E, P/B, ROE, ROCE, Debt/Equity, FCF, OPM, Sales/Profit growth |
-| **NSE India** (`EQUITY_L.csv`) | Full list of active NSE equities (auto-refreshed weekly) |
+| **Yahoo Finance** *(yFinance)* | Live price, OHLCV history, financial statements, basic fundamentals |
+| **Screener.in** *(scraped)* | P/E, P/B, ROE, ROCE, Debt/Equity, FCF, OPM, Sales/Profit growth |
+| **NSE India** *(`EQUITY_L.csv`)* | Full list of active NSE equities — auto-refreshed weekly |
+
+</div>
 
 ---
 
-## Author
+<div align="center">
 
-**Mandar Jondhale** — [github.com/mandarjondhale](https://github.com/mandarjondhale)
+**Made by [Mandar Jondhale](https://github.com/mandarjondhale)**
+
+![Visitor Badge](https://visitor-badge.laobi.icu/badge?page_id=mandarjondhale.NSE-Stock-Research-Platform)
+
+</div>
