@@ -1,11 +1,6 @@
 <div align="center">
 
-<!-- Animated Banner SVG -->
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=3000&pause=1000&color=E84545&center=true&vCenter=true&width=600&lines=NSE+Stock+Research+Platform;Real-time+Quantitative+Analysis;Built+for+Indian+Equities" alt="Typing SVG" />
-
-<br/>
-
-<img src="https://readme-typing-svg.demolab.com?font=Inter&size=16&duration=4000&pause=800&color=8B949E&center=true&vCenter=true&width=700&lines=Full-stack+research+terminal+for+4%2C000%2B+NSE+stocks;Live+prices+%E2%80%A2+Piotroski+scoring+%E2%80%A2+RSI+%2F+MACD+%E2%80%A2+AI+summaries;Zero+LLM+required+%E2%80%94+works+100%25+offline" alt="Subtitle" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=32&duration=3000&pause=99999&color=E84545&center=true&vCenter=true&repeat=false&width=620&lines=NSE+Stock+Research+Platform" alt="NSE Stock Research Platform" />
 
 <br/><br/>
 
