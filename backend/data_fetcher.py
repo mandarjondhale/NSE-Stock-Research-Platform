@@ -150,7 +150,7 @@ def get_fundamentals(ticker: str) -> dict:
         return screener_data.get(s_key.lower(), info.get(y_key, default))
 
     pe = get_m("Stock P/E", "trailingPE", None)
-    pb = get_m("Price to book value", "priceToBook", None)
+    pb = screener_data.get("pb_ratio_calculated") or get_m("Price to book value", "priceToBook", None)
     roe = get_m("ROE", "returnOnEquity", None)
     if isinstance(roe, (int, float)) and roe < 1:
         roe = roe * 100
@@ -161,10 +161,17 @@ def get_fundamentals(ticker: str) -> dict:
 
     mcap = get_m("Market Cap", "marketCap")
 
+    # EPS: screener first, then yfinance info
+    eps = screener_data.get("eps") or info.get("trailingEps", None)
+
+    # Sector / Industry: yfinance info is the source; fallback to screener if blank
+    sector   = info.get("sector") or screener_data.get("sector") or None
+    industry = info.get("industry") or screener_data.get("industry") or None
+
     return {
         "company_name": info.get("longName", ticker.replace(".NS", "")),
-        "sector": info.get("sector", "Unknown"),
-        "industry": info.get("industry", "Equities"),
+        "sector": sector,
+        "industry": industry,
         "description": info.get("longBusinessSummary", f"NSE listed enterprise — {ticker}")[:250],
         "market_cap": mcap,
         "pe": round(float(pe), 2) if pe is not None else None,
@@ -172,7 +179,7 @@ def get_fundamentals(ticker: str) -> dict:
         "roe": round(float(roe), 2) if roe is not None else None,
         "debt_to_equity": round(float(de), 2) if de is not None else None,
         "dividend_yield": get_m("Dividend Yield", "dividendYield", None),
-        "eps": info.get("trailingEps", None),
+        "eps": round(float(eps), 2) if eps is not None else None,
         "revenue_growth_yoy_pct": screener_data.get("sales_growth_yoy", None),
         "profit_growth_yoy_pct": screener_data.get("profit_growth_yoy", None),
     }
@@ -399,7 +406,12 @@ def get_piotroski_score(ticker: str) -> dict:
         cf    = stock.cashflow
         info  = stock.info or {}
     except Exception as e:
-        return {"score": None, "max": 9, "verdict": f"Data unavailable: {e}", "criteria": {}}
+        # yfinance sometimes returns empty JSON body → JSONDecodeError
+        return {"score": None, "max": 9, "verdict": "Financial statements temporarily unavailable", "criteria": {}}
+
+    # Guard: if statements came back empty, return early cleanly
+    if fin is None or (hasattr(fin, 'empty') and fin.empty):
+        return {"score": None, "max": 9, "verdict": "No annual financial data available", "criteria": {}}
 
     criteria = {}
 

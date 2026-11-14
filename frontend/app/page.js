@@ -443,9 +443,11 @@ function StockDashboard({ data }) {
               label="P/E Ratio"
               value={num(fund.pe)}
               sub={
-                fund.pe < 25
-                  ? "🟢 Attractive"
-                  : "🟡 Premium"
+                fund.pe == null
+                  ? "Data unavailable"
+                  : fund.pe < 25
+                  ? "Attractive"
+                  : "Premium"
               }
             />
             <Metric
@@ -456,9 +458,9 @@ function StockDashboard({ data }) {
             />
             <Metric
               label="Piotroski Score"
-              value={`${piot.score || "—"}/9`}
+              value={piot.score != null ? `${piot.score}/9` : "—/9"}
               color={piot.score >= 7 ? "text-purple-300" : "text-zinc-100"}
-              sub={piot.verdict}
+              sub={piot.score != null ? piot.verdict : "Financial data unavailable"}
             />
           </div>
 
@@ -524,11 +526,31 @@ function StockDashboard({ data }) {
               color="bg-purple-500"
             />
             <div className="mt-4">
-              <Check label="Positive ROA" passed={true} />
-              <Check label="Positive Operating Cash Flow" passed={true} />
-              <Check label="Higher ROA YoY" passed={(piot.score || 0) >= 5} />
-              <Check label="Low Long Term Debt" passed={fund.debt_to_equity < 0.5} />
-              <Check label="High Gross Margin" passed={(piot.score || 0) >= 6} />
+              {piot.criteria && Object.keys(piot.criteria).length > 0 ? (
+                Object.entries(piot.criteria).map(([key, val]) => {
+                  const label = key
+                    .replace(/^F\d+_/, "")
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, (c) => c.toUpperCase());
+                  return (
+                    <div key={key} className="flex items-start justify-between text-xs py-1.5 border-b border-zinc-800/40 last:border-0 gap-2">
+                      <div>
+                        <span className={val.pass ? "text-zinc-200 font-medium" : "text-zinc-500"}>{label}</span>
+                        {val.detail && (
+                          <span className="block text-[10px] text-zinc-600 mt-0.5">{val.detail}</span>
+                        )}
+                      </div>
+                      <span className={`font-bold text-xs shrink-0 ${val.pass ? "text-emerald-400" : "text-rose-400/80"}`}>
+                        {val.pass ? "PASSED" : "FAILED"}
+                      </span>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-zinc-500 mt-2">
+                  {piot.verdict || "Financial statement data unavailable for this ticker."}
+                </p>
+              )}
             </div>
           </Card>
 
@@ -549,7 +571,12 @@ function StockDashboard({ data }) {
             <div className="grid grid-cols-2 gap-4">
               <Metric label="50-Day MA" value={`₹${num(tech.ma_50)}`} />
               <Metric label="200-Day MA" value={`₹${num(tech.ma_200)}`} />
-              <Metric label="RSI (14-Day)" value={num(tech.rsi)} sub="Neutral Zone" />
+              <Metric label="RSI (14-Day)" value={num(tech.rsi)} sub={
+                tech.rsi == null ? "Unavailable"
+                : tech.rsi < 30 ? "Oversold"
+                : tech.rsi > 70 ? "Overbought"
+                : "Neutral Zone"
+              } />
               <Metric label="Technical Score" value={`${tech.technical_score || 65}/100`} />
             </div>
           </Card>
@@ -569,7 +596,7 @@ function StockDashboard({ data }) {
                   MACD Status
                 </span>
                 <span className="text-base font-bold text-emerald-400 uppercase">
-                  {tech.macd_signal || "Bullish Crossover"}
+                  {tech.macd_verdict || tech.macd_signal || "—"}
                 </span>
               </div>
             </div>
