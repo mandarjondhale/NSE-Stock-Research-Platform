@@ -16,27 +16,27 @@
 
 ---
 
-## ✨ Features
+## Features
 
 <div align="center">
 
-| 🔍 | Feature | Description |
-|:--:|---------|-------------|
-| 📡 | **NSE Symbol Search** | Fuzzy search across 4,000+ active NSE equities — exact match → prefix → contains |
-| 💹 | **Live Price Data** | Current price, 1D / 1M / 6M / 1Y returns, 52-week range bar, annual volatility |
-| 📊 | **30-Day Price Chart** | Interactive Chart.js line chart with hover tooltips |
-| 🧮 | **Fundamental Analysis** | P/E, P/B, ROE, D/E, EPS, Revenue & Profit Growth (YoY), Market Cap |
-| 🏆 | **Piotroski F-Score** | All 9 criteria evaluated from real financial statements — profitability, leverage, efficiency |
-| 📈 | **Technical Indicators** | Wilder RSI (14), MACD (12/26/9), 50/200-Day SMA, signal-based score /100 |
-| 🤖 | **AI Summary** *(optional)* | Gemini 1.5 Flash — 3-sentence plain-language summary, streamed token-by-token |
-| ⚡ | **Smart Cache** | In-memory TTL cache with IST market-hours awareness; top 10 stocks pre-warmed every 4 min |
-| 🔒 | **Zero-LLM Core** | Full analysis pipeline runs with zero AI API key — Gemini is purely optional |
+| Feature | Description |
+|---------|-------------|
+| **NSE Symbol Search** | Fuzzy search across 4,000+ active NSE equities — exact match → prefix → contains |
+| **Live Price Data** | Current price, 1D / 1M / 6M / 1Y returns, 52-week range bar, annual volatility |
+| **30-Day Price Chart** | Interactive Chart.js line chart with hover tooltips |
+| **Fundamental Analysis** | P/E, P/B, ROE, D/E, EPS, Revenue & Profit Growth (YoY), Market Cap |
+| **Piotroski F-Score** | All 9 criteria evaluated from real financial statements — profitability, leverage, efficiency |
+| **Technical Indicators** | Wilder RSI (14), MACD (12/26/9), 50/200-Day SMA, signal-based score /100 |
+| **AI Summary** *(optional)* | Gemini 1.5 Flash — 3-sentence plain-language summary, streamed token-by-token |
+| **Smart Cache** | In-memory TTL cache with IST market-hours awareness; top 10 stocks pre-warmed every 4 min |
+| **Zero-LLM Core** | Full analysis pipeline runs with zero AI API key — Gemini is purely optional |
 
 </div>
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 <div align="center">
 
@@ -58,34 +58,34 @@
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
 ```
 NSE-Stock-Research-Platform/
-├── backend/
-│   ├── main.py               # FastAPI app, all API routes, startup tasks
-│   ├── data_fetcher.py       # Price data, fundamentals, technicals, Piotroski
-│   ├── screener_fetcher.py   # Scrapes Screener.in for P/E, ROE, growth ratios
-│   ├── cache.py              # In-memory cache with TTL + market-hours logic
-│   ├── nse_equities.json     # Snapshot of all active NSE symbols (~4,000)
-│   ├── requirements.txt      # Python dependencies
-│   └── .env.example          # Environment variable template
-│
-├── frontend/
-│   ├── app/
-│   │   ├── page.js           # Main dashboard UI (search, tabs, charts)
-│   │   ├── globals.css       # Global Tailwind styles
-│   │   └── nse_equities.json # Client-side symbol list for instant search
-│   ├── next.config.js
-│   ├── tailwind.config.js
-│   └── package.json
-│
-└── render.yaml               # Render deployment config for backend
+ backend/
+ main.py # FastAPI app, all API routes, startup tasks
+ data_fetcher.py # Price data, fundamentals, technicals, Piotroski
+ screener_fetcher.py # Scrapes Screener.in for P/E, ROE, growth ratios
+ cache.py # In-memory cache with TTL + market-hours logic
+ nse_equities.json # Snapshot of all active NSE symbols (~4,000)
+ requirements.txt # Python dependencies
+ .env.example # Environment variable template
+
+ frontend/
+ app/
+ page.js # Main dashboard UI (search, tabs, charts)
+ globals.css # Global Tailwind styles
+ nse_equities.json # Client-side symbol list for instant search
+ next.config.js
+ tailwind.config.js
+ package.json
+
+ render.yaml # Render deployment config for backend
 ```
 
 ---
 
-## 🌐 API Endpoints
+## API Endpoints
 
 <div align="center">
 
@@ -104,13 +104,13 @@ NSE-Stock-Research-Platform/
 
 ```bash
 curl -X POST https://fincopilot-api.onrender.com/api/stock/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"ticker": "RELIANCE"}'
+ -H "Content-Type: application/json" \
+ -d '{"ticker": "RELIANCE"}'
 ```
 
 ---
 
-## 🖥 Dashboard Tabs
+## Dashboard Tabs
 
 <div align="center">
 
@@ -126,15 +126,15 @@ curl -X POST https://fincopilot-api.onrender.com/api/stock/analyze \
 
 ---
 
-## 🚀 Local Setup
+## Local Setup
 
 ### Backend
 
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # macOS/Linux
+venv\Scripts\activate # Windows
+# source venv/bin/activate # macOS/Linux
 
 pip install -r requirements.txt
 
@@ -158,7 +158,7 @@ npm run dev
 
 ---
 
-## 🔑 Environment Variables
+## Environment Variables
 
 ### Backend (`backend/.env`)
 
@@ -174,7 +174,7 @@ npm run dev
 
 ---
 
-## ☁️ Deployment
+## Deployment
 
 ### Backend → Render
 
@@ -194,7 +194,7 @@ Set `GEMINI_API_KEY` in the Render dashboard under **Environment → Secret File
 
 ---
 
-## 📦 Data Sources
+## Data Sources
 
 <div align="center">
 
