@@ -62,25 +62,26 @@
 
 ```
 NSE-Stock-Research-Platform/
- backend/
- main.py # FastAPI app, all API routes, startup tasks
- data_fetcher.py # Price data, fundamentals, technicals, Piotroski
- screener_fetcher.py # Scrapes Screener.in for P/E, ROE, growth ratios
- cache.py # In-memory cache with TTL + market-hours logic
- nse_equities.json # Snapshot of all active NSE symbols (~4,000)
- requirements.txt # Python dependencies
- .env.example # Environment variable template
-
- frontend/
- app/
- page.js # Main dashboard UI (search, tabs, charts)
- globals.css # Global Tailwind styles
- nse_equities.json # Client-side symbol list for instant search
- next.config.js
- tailwind.config.js
- package.json
-
- render.yaml # Render deployment config for backend
+│
+├── backend/
+│   ├── main.py                 # FastAPI app — all API routes, CORS, startup tasks
+│   ├── data_fetcher.py         # Price data, fundamentals, technicals, Piotroski score
+│   ├── screener_fetcher.py     # Screener.in scraper — P/E, ROE, D/E, growth ratios
+│   ├── cache.py                # In-memory TTL cache with IST market-hours logic
+│   ├── nse_equities.json       # Snapshot of all active NSE symbols (~4,000)
+│   ├── requirements.txt        # Python dependencies
+│   └── .env.example            # Environment variable template
+│
+├── frontend/
+│   ├── app/
+│   │   ├── page.js             # Main dashboard UI — search, tabs, chart
+│   │   ├── globals.css         # Global Tailwind styles
+│   │   └── nse_equities.json   # Client-side symbol list for instant search
+│   ├── next.config.js
+│   ├── tailwind.config.js
+│   └── package.json
+│
+└── render.yaml                 # Render deployment config for backend
 ```
 
 ---
